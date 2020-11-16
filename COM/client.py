@@ -1,5 +1,5 @@
 import pygame as pg
-import joystick as joy
+from COM import joystick as joy
 
 if __name__ == "__main__":
 
