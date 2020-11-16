@@ -1,3 +1,7 @@
+# Just for testing purposes
+# Moving stuff in the Window
+
+
 import pygame as pg
 
 SCREEN_WIDTH = 500
@@ -89,19 +93,11 @@ if __name__ == "__main__":
 
 		pressed_keys = pg.key.get_pressed()
 
-		'''for i in range (0,15):
-			if controller.get_button(i):
-				print("Pressing: " + str(i))'''
 		Robot.update_controller(controller)
 		Robot.update(pressed_keys)
 
-		#Robot.controller_update(controller)
-
 		screen.fill((0,0,0))
 		surf = pg.Surface((50,50))
-
-		#surf.fill((255,255,255))
-		#rect = surf.get_rect()
 
 		screen.blit(Robot.surf, Robot.rect)
 

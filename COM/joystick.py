@@ -24,7 +24,7 @@ def initializeJoystick():
 		printGamepadInformation(0, joystick)
 
 		if joystick.get_name() == "Nintendo Switch Pro Controller":
-			with open(os.path.join("nintendo.json"), 'r+') as file:
+			with open(os.path.join("COM/nintendo.json"), 'r+') as file:
 				buttons = json.load(file)
 		return joystick, buttons
 

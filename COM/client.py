@@ -1,5 +1,7 @@
+# Client for controlling the Robot via server
+
 import pygame as pg
-from COM import joystick as joy
+import joystick as joy
 
 if __name__ == "__main__":
 
