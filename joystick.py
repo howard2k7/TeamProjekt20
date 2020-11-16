@@ -24,7 +24,6 @@ def initializeJoystick():
 		if joystick.get_name() == "Nintendo Switch Pro Controller":
 			with open(os.path.join("nintendo.json"), 'r+') as file:
 				buttons = json.load(file)
-
 		return joystick, buttons
 
 # Prints the name of the pressed buttons as mapped in json file
@@ -42,7 +41,7 @@ def printPressedButton(joystick, buttons):
 				print("Pressed right")
 
 # Printing the button which is pressed (used for testButtonMapping
-def printPressedButton(joystick):
+def printAllPressedButton(joystick):
 	buttonCount = joystick.get_numbuttons()
 	for i in range(buttonCount):
 		if joystick.get_button(i):
@@ -76,7 +75,7 @@ def testButtonMapping():
 			if event.type == pg.KEYDOWN:
 				if event.key == pg.K_ESCAPE:
 					running = False
-		printPressedButton(joystick)
+		printAllPressedButton(joystick)
 
 		pg.display.flip()
 		clock.tick(30)

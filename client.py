@@ -1,16 +1,6 @@
 import pygame as pg
 import joystick as joy
 
-from pygame.locals import (
-    K_UP,
-    K_DOWN,
-    K_LEFT,
-    K_RIGHT,
-    K_ESCAPE,
-    KEYDOWN,
-    QUIT,
-)
-
 if __name__ == "__main__":
 
 	pg.init()
@@ -24,13 +14,12 @@ if __name__ == "__main__":
 	screen = pg.display.set_mode([40,40])
 
 
-
 	while running:
 		for event in pg.event.get():
 			if event.type == pg.QUIT:
 				running = False
-			if event.type == KEYDOWN:
-				if event.key == K_ESCAPE:
+			if event.type == pg.KEYDOWN:
+				if event.key == pg.K_ESCAPE:
 					running = False
 		joy.printPressedButton(gamepad,buttons)
 
