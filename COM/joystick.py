@@ -18,6 +18,7 @@ def printGamepadInformation(index, gamepad):
 def initializeJoystick():
 	if pg.joystick.get_count() < 1:
 		print("Could'nt find any gamepads\nPlease connect a gamepad and try again")
+		exit()
 	else:
 		joystick = pg.joystick.Joystick(0)
 		joystick.init()
@@ -45,9 +46,16 @@ def printPressedButton(joystick, buttons):
 # Printing the button which is pressed (used for testButtonMapping
 def printAllPressedButton(joystick):
 	buttonCount = joystick.get_numbuttons()
+	hatCount = joystick.get_numhats()
 	for i in range(buttonCount):
 		if joystick.get_button(i):
 			print("Button: " + str(i) + " is pressed")
+	for i in range(hatCount):
+		hatValue = joystick.get_hat(i)
+
+		if (hatValue[0] != 0) or (hatValue[1] != 0):
+			print("Hatvalue : " + str(joystick.get_hat(i)))
+
 
 
 # Initializes PyGame and starts a loop for printing any button you press on the controller in the console
@@ -59,6 +67,7 @@ def testButtonMapping():
 
 	if pg.joystick.get_count() < 1:
 		print("Could'nt find any gamepads\nPlease connect a gamepad and try again")
+		exit()
 	else:
 		joystick = pg.joystick.Joystick(0)
 		joystick.init()
@@ -78,6 +87,7 @@ def testButtonMapping():
 				if event.key == pg.K_ESCAPE:
 					running = False
 		printAllPressedButton(joystick)
+
 
 		pg.display.flip()
 		clock.tick(30)
