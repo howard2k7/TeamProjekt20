@@ -27,6 +27,8 @@ def initializeJoystick():
 		if joystick.get_name() == "Nintendo Switch Pro Controller":
 			with open(os.path.join("COM/nintendo.json"), 'r+') as file:
 				buttons = json.load(file)
+				buttons = {int(key): value for key,value in buttons.items()}
+
 		return joystick, buttons
 
 # Prints the name of the pressed buttons as mapped in json file
@@ -34,14 +36,16 @@ def printPressedButton(joystick, buttons):
 	buttonCount = joystick.get_numbuttons()
 	for i in range(buttonCount):
 		if joystick.get_button(i):
-			if i == buttons["up"]:
-				print("Pressed up")
-			if i == buttons["down"]:
-				print("Pressed down")
-			if i == buttons["left"]:
-				print("Pressed left")
-			if i == buttons["right"]:
-				print("Pressed right")
+			if i in buttons:
+				print("Button pressed: %s " %buttons[i])
+			else:
+				print("Button not mapped, button pressed : %s" %i)
+
+	# TODO: reading hat for Pro Controller
+	'''			
+def buttonPressed(joystick, buttons):
+	buttonCount = 
+	'''
 
 # Printing the button which is pressed (used for testButtonMapping
 def printAllPressedButton(joystick):
