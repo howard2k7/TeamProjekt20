@@ -7,6 +7,7 @@ root = Tk()
 root.geometry("800x150")
 root.config(bg="grey")
 root.title("Team Rot Verbindungsmanager")
+root.resizable(False, False)
 
 def verbindungsClick():
     vbLabel.config(bg="yellow", text="Verbindung wird aufgebaut")
