@@ -35,6 +35,10 @@ def verbindungIstPositiv():
     openMain.grid(row=2, column=3)
     return
 
+def openMain():
+    import main_gui
+
+
 #Label erstellen
 beschreibungLabel = Label(root, text="Gebe die IP-Adresse des Servers ein !")
 testLabel2 = Label(root, text="IP Adresse:")
@@ -56,10 +60,8 @@ ipFeld.grid(row=2, column=1)
 
 #Button erstellen
 connectButton = Button(root, text="Verbinden", pady=20, padx=20, command=lambda:threading.Thread(target=verbindungsClick).start())
-openMain = Button(root, text="Start", pady=20, padx=20)
+openMain = Button(root, text="Start", pady=20, padx=20, command=openMain)
 #Button anordnen
 connectButton.grid(row=2, column=2)
 
-
 root.mainloop()
-
