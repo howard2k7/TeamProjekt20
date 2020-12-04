@@ -7,7 +7,7 @@ def testVerbunden():
     return True
 
 def hoeheStufe(stufe):
-    return("Stelle Stufe:", stufe, "ein")
+    return("Antwort: Stelle Stufe auf:", stufe)
 
 def geschwStufe(geschw):
-    return("Stelle Geschwindigkeit auf:", geschw, "ein")
+    return("Antwort: Stelle Geschwindigkeit auf:", geschw)

@@ -1,7 +1,6 @@
 from tkinter import *
 import threading
 import verbindungsTest
-# tupel to string imports
 import functools
 import operator
 
@@ -12,9 +11,12 @@ main.title("Main Interface")
 main.resizable(False, False)
 
 
-def convertTuple(tup):
-    str = functools.reduce(operator.add, (tup))
-    return str
+def convertString(tup):
+    helpstr = ""
+    for i in range(len(tup)):
+        if tup[i] != "'" and tup[i] != "(" and tup[i] != ")" and tup[i] != ",":
+            helpstr = helpstr + tup[i]
+    return helpstr
 
 
 def hoeheEinstellen():
@@ -57,7 +59,7 @@ frame.configure(background='black')
 
 
 def write(txt):
-    output.insert(END, str(txt + "\n"))
+    output.insert(END, str(convertString(txt) + "\n"))
 
 
 selectedHoehe = StringVar(main)
