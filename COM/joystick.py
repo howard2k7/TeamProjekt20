@@ -24,8 +24,14 @@ def initializeJoystick():
 		joystick.init()
 		printGamepadInformation(0, joystick)
 
+
 		if joystick.get_name() == "Nintendo Switch Pro Controller":
-			with open(os.path.join("COM/nintendo.json"), 'r+') as file:
+			with open(os.path.join("nintendo.json"), 'r+') as file:
+				buttons = json.load(file)
+				buttons = {int(key): value for key,value in buttons.items()}
+
+		if joystick.get_name() == "PS4 Controller":
+			with open(os.path.join("ps4.json"), 'r+') as file:
 				buttons = json.load(file)
 				buttons = {int(key): value for key,value in buttons.items()}
 
@@ -38,8 +44,11 @@ def printPressedButton(joystick, buttons):
 		if joystick.get_button(i):
 			if i in buttons:
 				print("Button pressed: %s " %buttons[i])
+				return i
 			else:
 				print("Button not mapped, button pressed : %s" %i)
+				return i
+	return -1
 
 	# TODO: reading hat for Pro Controller
 	'''			
