@@ -3,7 +3,7 @@ import threading
 import verbindungsTest
 
 main = Tk()
-main.geometry("950x500")
+main.geometry("1100x500")
 main.config(bg="grey")
 main.title("Main Interface")
 main.resizable(False, False)
@@ -57,18 +57,16 @@ frameBotRight.grid(row=1, column=1)
 # frame for terminal
 frameTerminal = Frame(frameBotRight)
 frameTerminal.grid(row=2, column=3)
-
-# create terminal output
-output = Text(frameTerminal, width=50, height=15, background='black', fg='white')
-output.pack(side=LEFT)
+frameTerminal.configure(background='black')
 
 # create scrollbar
-scrollbar = Scrollbar(frameTerminal, orient="vertical", command=output.yview)
+scrollbar = Scrollbar(frameTerminal)
 scrollbar.pack(side=RIGHT, fill="y")
 
-# terminal configuration
-frameTerminal.count = 1
-frameTerminal.configure(background='black')
+# create output
+output = Listbox(frameTerminal, yscrollcommand=scrollbar.set , width=50, height=15, background='black', fg='white')
+output.pack(side=LEFT)
+scrollbar.config(command=output.yview)
 
 
 def write(txt):
