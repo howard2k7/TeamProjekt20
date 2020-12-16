@@ -5,6 +5,7 @@ from threading import Thread
 
 
 
+
 class Gamepad:
 
 	connectedPad = ""
@@ -13,7 +14,7 @@ class Gamepad:
 	def __init__(self):
 		pg.init()
 
-		clock = pg.time.Clock()
+		self.clock = pg.time.Clock()
 
 		# Init Gamepad
 		self.gamepad, self.buttons = self.initializeJoystick()
@@ -22,6 +23,15 @@ class Gamepad:
 		self.context = zmq.Context()
 		self.socket = self.context.socket(zmq.PAIR)
 		self.socket.connect("tcp://127.0.0.1:5555")
+
+		# Init connection
+		self.backChannel = Thread(target=self.backReport, args=())
+		self.backChannel.start()
+
+	def __del__(self):
+		self.backChannel.join()
+
+
 
 
 	def backReport(self):
@@ -79,22 +89,16 @@ class Gamepad:
 
 	def getControlSignals(self):
 
-		clock = pg.time.Clock()
 
 		# Init Gamepad
 		gamepad, buttons = self.initializeJoystick()
 
-		# Init connection
-		self.backChannel= Thread(target=self.backReport, args=())
-		self.backChannel.start()
-
 		running = True
 
-		screen = pg.display.set_mode([40, 40])
+		self.screen = pg.display.set_mode([40, 40])
 
 		while running:
-			button = ""
-			somethingPressed = -1
+
 			for event in pg.event.get():
 				if event.type == pg.QUIT:
 					running = False
@@ -107,11 +111,10 @@ class Gamepad:
 
 			if (somethingPressed > -1):
 				if somethingPressed in buttons.keys():
-					self.socket.send_string("Pressed: " + buttons[somethingPressed])
+					self.socket.send_string(buttons[somethingPressed])
 				else:
 					self.socket.send_string("Unknown key pressed!")
 
 			pg.display.flip()
-			clock.tick(30)
-
-		self.backChannel.join()
+			self.clock.tick(30)
+		pg.quit()
