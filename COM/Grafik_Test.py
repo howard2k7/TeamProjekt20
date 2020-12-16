@@ -9,60 +9,64 @@ root.config(bg="grey")
 root.title("Team Rot Verbindungsmanager")
 root.resizable(False, False)
 
-def verbindungsClick():
-    vbLabel.config(bg="yellow", text="Verbindung wird aufgebaut")
+
+def connectionClick():
+    conLabel.config(bg="yellow", text="Verbindung wird aufgebaut")
     root.update()
 
-    if(ipFeld.get() != ""):
-        ipadresse = ipFeld.get()
+    if ipField.get() != "":
+        ipaddress = ipField.get()
 
-        #Aufruf der Verbindungsmethode
-        verbindungsTest.verbinde(ipadresse)
+        # call connection method
+        verbindungsTest.verbinde(ipaddress)
         time.sleep(5)
 
-        #überprüfung der Antwort
+        # checking the answer
         if (verbindungsTest.testVerbunden() == True):
-            verbindungIstPositiv()
+            connectionIsPositive()
         else:
             print("Verbindungs TimeOut")
-            vbLabel.config(text="Verbindung nicht aufgebaut !", bg="red")
+            conLabel.config(text="Verbindung nicht aufgebaut !", bg="red")
 
     else:
         print("Fehler nichts eigegeben!")
-        vbLabel.config(bg="red", text="Verbindung fehlgeschlagen")
+        conLabel.config(bg="red", text="Verbindung fehlgeschlagen")
 
-def verbindungIstPositiv():
-    vbLabel.config(bg="green", text="Verbindung erfolgreich!")
+
+def connectionIsPositive():
+    conLabel.config(bg="green", text="Verbindung erfolgreich!")
     openMain.grid(row=2, column=3)
     return
+
 
 def openMain():
     import main_gui
 
 
-#Label erstellen
-beschreibungLabel = Label(root, text="Gebe die IP-Adresse des Servers ein !")
+# create labels
+descriptionLabel = Label(root, text="Gebe die IP-Adresse des Servers ein !")
 testLabel2 = Label(root, text="IP Adresse:")
-vbLabel = Label(root, text="Verbindung nicht aufgebaut !", bg="red")
-platzHalter = Label(root, bg="grey")
+conLabel = Label(root, text="Verbindung nicht aufgebaut !", bg="red")
+placeHolder = Label(root, bg="grey")
 
-#Label anordnen
+# arrange labels
 testLabel2.grid(row=2, column=0)
-beschreibungLabel.grid(row=0, column=0)
-vbLabel.grid(row=0, column=2)
-platzHalter.grid(row=1, column=1)
+descriptionLabel.grid(row=0, column=0)
+conLabel.grid(row=0, column=2)
+placeHolder.grid(row=1, column=1)
 
-#Inputfeld erstellen
-ipFeld = Entry(root)
-ipFeld.config(width=25)
+# create input field
+ipField = Entry(root)
+ipField.config(width=25)
 
-#Iputfeld anordnen
-ipFeld.grid(row=2, column=1)
+# arrange input field
+ipField.grid(row=2, column=1)
 
-#Button erstellen
-connectButton = Button(root, text="Verbinden", pady=20, padx=20, command=lambda:threading.Thread(target=verbindungsClick).start())
+# create button
+connectButton = Button(root, text="Verbinden", pady=20, padx=20,
+                       command=lambda: threading.Thread(target=connectionClick).start())
 openMain = Button(root, text="Start", pady=20, padx=20, command=openMain)
-#Button anordnen
+# arrange button
 connectButton.grid(row=2, column=2)
 
 root.mainloop()
