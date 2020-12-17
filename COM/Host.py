@@ -100,8 +100,5 @@ class Host():
 			pg.display.flip()
 
 			self.fps.tick(30)
-			'''counter = counter + 1
-			if counter % 30 == 0:
-				print(counter)
-				print(self.lastPressed)'''
+
 		pg.quit()

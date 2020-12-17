@@ -106,20 +106,23 @@ class mainGui:
         self.conLabel.config(bg="yellow", text="Verbindung wird aufgebaut")
         self.master.update()
 
+        ipaddress = ""
         text = self.ipField.get()
         ipaddressOK = re.match(r"^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$",text)
+        
         if ipaddressOK:
             ipaddress = ipaddressOK.string
 
         if ipaddress:
 
             # call connection method
-            myGamepad = gp.Gamepad(ipaddress)
+            myGamepad = gp.Gamepad(ipaddress, self)
             myGamepad.checkConnection()
             time.sleep(2)
 
             # checking the answer
             if (myGamepad.getConnectionStatus()):
+                self.write("Connected....")
                 self.connectionIsPositive(myGamepad)
             else:
                 print("Verbindungs TimeOut")
@@ -172,9 +175,11 @@ class mainGui:
 
     def write(self, txt):
         self.output.insert(END, str(self.convertString(txt) + "\n"))
+        self.output.see("end")
 
     def write2(self, txt):
         self.output2.insert(END, str(txt + "\n"))
+        self.output2.see("end")
 
 
 if __name__ == "__main__":

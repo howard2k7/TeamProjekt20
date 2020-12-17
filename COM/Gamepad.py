@@ -1,5 +1,4 @@
 '''
-
 	Client for GamePad Control @ Control Side
 
 	Author: Fabian Schäfle
@@ -8,7 +7,6 @@
 	The code
 	is documentation
 	enough
-
 '''
 
 
@@ -18,17 +16,14 @@ import zmq, math
 from threading import Thread
 
 
-
-
-
-
 class Gamepad:
 
 	connectedPad = ""
 	buttonPressed = ""
 
+	def __init__(self, ipAddress, mother):
 
-	def __init__(self, ipAddress):
+		self.mother = mother
 		pg.init()
 
 		self.connectionEst = False
@@ -83,6 +78,7 @@ class Gamepad:
 
 
 	def initializeJoystick(self):
+
 		if pg.joystick.get_count() < 1:
 			print("Could'nt find any gamepads\nPlease connect a gamepad and try again")
 			exit()
@@ -117,11 +113,11 @@ class Gamepad:
 			if joystick.get_button(i):
 				if i in buttons:
 					self.buttonPressed = buttons[i]
-					print("Button pressed: %s " % buttons[i])
+					#print("Button pressed: %s " % buttons[i])
 					return i
 				else:
 					self.buttonPressed = i
-					print("Button not mapped, button pressed : %s" % i)
+					#print("Button not mapped, button pressed : %s" % i)
 					return i
 		return -1
 
@@ -167,12 +163,14 @@ class Gamepad:
 					self.running = False
 				if somethingPressed in buttons.keys():
 					self.socket.send_string(buttons[somethingPressed])
+					self.mother.write2(buttons[somethingPressed])
 				else:
 					self.socket.send_string("Unknown key pressed!")
 
 			self.speed, self.angle = self.axis(gamepad)
 			if (self.speed > 0.0) or (self.angle):
-				self.socket.send_string("S: " + str(self.speed) + " A: " + str(self.angle))
+				self.socket.send_string("Speed: " + str(self.speed) + " Angle: " + str(self.angle))
+				self.mother.write2("Speed: " + str(self.speed) + " Angle: " + str(self.angle))
 				#print("Speed " + str(self.speed) + " Winkel: " + str(self.angle))
 
 			#pg.display.flip()
