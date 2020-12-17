@@ -23,12 +23,12 @@ from threading import Thread
 class Gamepad:
 
 	connectedPad = ""
-	connectionEst = False
 	buttonPressed = ""
 
-	def __init__(self):
+	def __init__(self, ipAddress):
 		pg.init()
 
+		self.connectionEst = False
 		self.running = True
 		self.clock = pg.time.Clock()
 
@@ -36,11 +36,13 @@ class Gamepad:
 		self.gamepad, self.buttons = self.initializeJoystick()
 		# print(self.buttons)
 
+		# Init connection
 		self.context = zmq.Context()
 		self.socket = self.context.socket(zmq.PAIR)
-		self.socket.connect("tcp://127.0.0.1:5555")
+		self.socket.connect(ipAddress)
+		# self.socket.connect("tcp://127.0.0.1:5555")
 
-		# Init connection
+		# Init return channel
 		self.backChannel = Thread(target=self.backReport, args=())
 		self.backChannel.start()
 
@@ -65,6 +67,13 @@ class Gamepad:
 					self.connectionEst = True
 			except KeyboardInterrupt:
 				break
+
+	def getConnectionStatus(self):
+		if self.connectionEst == True:
+			return True
+		else:
+			return False
+
 
 	def initializeJoystick(self):
 		if pg.joystick.get_count() < 1:

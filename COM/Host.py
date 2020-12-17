@@ -87,7 +87,8 @@ class Host():
 			for event in pg.event.get():
 				if event.type == pg.QUIT:
 					self.running = False
-
+			if self.lastPressed == "QUIT":
+				self.running = False
 			self.Robot.move(self.lastPressed)
 			self.lastPressed = ""
 

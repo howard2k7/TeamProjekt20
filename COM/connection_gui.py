@@ -2,6 +2,7 @@ from tkinter import *
 import threading
 import time
 import verbindungsTest
+import Gamepad as gp
 
 root = Tk()
 root.geometry("800x150")
@@ -10,27 +11,34 @@ root.title("Team Rot Verbindungsmanager")
 root.resizable(False, False)
 
 
+
+
+
 def connectionClick():
     conLabel.config(bg="yellow", text="Verbindung wird aufgebaut")
     root.update()
+
+
 
     if ipField.get() != "":
         ipaddress = ipField.get()
 
         # call connection method
-        verbindungsTest.verbinde(ipaddress)
-        time.sleep(5)
+        myGamepad = gp.Gamepad(ipaddress)
+        myGamepad.checkConnection()
+        time.sleep(2)
 
         # checking the answer
-        if (verbindungsTest.testVerbunden() == True):
+        if (myGamepad.getConnectionStatus()):
             connectionIsPositive()
         else:
             print("Verbindungs TimeOut")
             conLabel.config(text="Verbindung nicht aufgebaut !", bg="red")
-
+        myGamepad.getControlSignals()
     else:
         print("Fehler nichts eigegeben!")
         conLabel.config(bg="red", text="Verbindung fehlgeschlagen")
+    del myGamepad
 
 
 def connectionIsPositive():
