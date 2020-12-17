@@ -64,7 +64,7 @@ class connectionGui:
 
     def connectionIsPositive(self):
         self.conLabel.config(bg="green", text="Verbindung erfolgreich!")
-        #openMain.grid(row=2, column=3)
+        self.openMain.grid(row=2, column=3)
         return
 
     def openMain(self):
