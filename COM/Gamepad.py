@@ -14,7 +14,7 @@
 
 import pygame as pg
 import json, os
-import zmq
+import zmq, math
 from threading import Thread
 
 
@@ -24,6 +24,7 @@ class Gamepad:
 
 	connectedPad = ""
 	buttonPressed = ""
+
 
 	def __init__(self, ipAddress):
 		pg.init()
@@ -45,6 +46,10 @@ class Gamepad:
 		# Init return channel
 		self.backChannel = Thread(target=self.backReport, args=())
 		self.backChannel.start()
+
+		# Vars
+		self.speed = 0.0
+		self.angle = 0
 
 	def __del__(self):
 		self.backChannel.join()
@@ -118,6 +123,26 @@ class Gamepad:
 					return i
 		return -1
 
+	def axis(self, gamepad):
+		# Geschwindigkeit(a):
+
+		a = gamepad.get_axis(1)  # mit a als Y-Achse
+		a = -round(a, 1)  # rundet auf die erste Nachkommastelle
+
+		b = gamepad.get_axis(0)  # mit b als X-Achse
+		b = -round(b, 1)
+
+		# Winkel
+		c = round(math.atan2(a, b) * 180 / (math.pi) - 90, 0)  #
+		if c < 0:
+			c += 360
+		if a == 0.0:
+			c = 0
+		c = round(c, 0)  # rundet auf ganze Zahl
+
+
+		return abs(a), c
+
 	def getControlSignals(self):
 
 
@@ -136,18 +161,21 @@ class Gamepad:
 				if event.type == pg.KEYDOWN:
 					if event.key == pg.K_ESCAPE:
 						self.running = False
-			somethingPressed = self.printPressedButton(gamepad, buttons)
-			if somethingPressed == 15:
-				self.running = False
 
+			somethingPressed = self.printPressedButton(gamepad, buttons)
 			if (somethingPressed > -1):
+				if somethingPressed == 15:
+					self.running = False
 				if somethingPressed in buttons.keys():
 					self.socket.send_string(buttons[somethingPressed])
 				else:
 					self.socket.send_string("Unknown key pressed!")
 
+			self.speed, self.angle = self.axis(gamepad)
+			print("Speed " + str(self.speed) + " Winkel: " + str(self.angle))
+
 			pg.display.flip()
-			self.clock.tick(30)
+			self.clock.tick(4)
 		pg.quit()
 		self.backChannel.join()
 
