@@ -1,6 +1,7 @@
 from tkinter import *
 import threading
 import verbindungsTest
+import time
 
 
 class mainGui:
