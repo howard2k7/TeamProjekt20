@@ -25,6 +25,8 @@ if c < 0:
 c = round(c, 0) #rundet auf ganze Zahl
 print(c)
 
+gp = j.get_name()
+print(gp)
 
 
 

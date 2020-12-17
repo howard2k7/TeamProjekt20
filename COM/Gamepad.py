@@ -97,6 +97,11 @@ class Gamepad:
 					buttons = json.load(file)
 					buttons = {int(key): value for key, value in buttons.items()}
 
+			if self.connectedPad == "XInput Controller #1":
+				with open(os.path.join("F310.json"), 'r+') as file:
+					buttons = json.load(file)
+					buttons = {int(key): value for key, value in buttons.items()}
+
 			return joystick, buttons
 
 	def printGamepadInformation(self, index, gamepad):
