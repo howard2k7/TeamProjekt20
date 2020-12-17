@@ -9,7 +9,6 @@
 	is documentation
 	enough
 
-
 '''
 
 
@@ -30,6 +29,7 @@ class Gamepad:
 	def __init__(self):
 		pg.init()
 
+		self.running = True
 		self.clock = pg.time.Clock()
 
 		# Init Gamepad
@@ -115,21 +115,21 @@ class Gamepad:
 		# Init Gamepad
 		gamepad, buttons = self.initializeJoystick()
 
-		running = True
+
 
 		self.screen = pg.display.set_mode([40, 40])
 
-		while running:
+		while self.running:
 
 			for event in pg.event.get():
 				if event.type == pg.QUIT:
-					running = False
+					self.running = False
 				if event.type == pg.KEYDOWN:
 					if event.key == pg.K_ESCAPE:
-						running = False
+						self.running = False
 			somethingPressed = self.printPressedButton(gamepad, buttons)
 			if somethingPressed == 15:
-				running = False
+				self.running = False
 
 			if (somethingPressed > -1):
 				if somethingPressed in buttons.keys():
@@ -140,3 +140,6 @@ class Gamepad:
 			pg.display.flip()
 			self.clock.tick(30)
 		pg.quit()
+		self.backChannel.join()
+
+
