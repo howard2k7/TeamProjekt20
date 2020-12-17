@@ -2,7 +2,8 @@ from tkinter import *
 import threading
 import verbindungsTest
 import time
-
+import Gamepad as gp
+import re
 
 class mainGui:
     def __init__(self, master):
@@ -87,19 +88,23 @@ class mainGui:
 
     def connectionClick(self):
         self.conLabel.config(bg="yellow", text="Verbindung wird aufgebaut")
-        self.update()
+        self.master.update()
 
-        if self.ipField.get() != "":
-            ipaddress = self.ipField.get()
+        text = self.ipField.get()
+        ipaddressOK = re.match(r"^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$",text)
+        if ipaddressOK:
+            ipaddress = ipaddressOK.string
+
+        if ipaddress:
 
             # call connection method
-            # myGamepad = gp.Gamepad(ipaddress)
-            # myGamepad.checkConnection()
+            myGamepad = gp.Gamepad(ipaddress)
+            myGamepad.checkConnection()
             time.sleep(2)
 
             # checking the answer
             if (myGamepad.getConnectionStatus()):
-                connectionIsPositive()
+                self.connectionIsPositive(myGamepad)
             else:
                 print("Verbindungs TimeOut")
                 self.conLabel.config(text="Verbindung nicht aufgebaut !", bg="red")
@@ -109,9 +114,9 @@ class mainGui:
             self.conLabel.config(bg="red", text="Verbindung fehlgeschlagen")
         # del myGamepad
 
-    def connectionIsPositive(self):
+    def connectionIsPositive(self, myGamepad):
         self.conLabel.config(bg="green", text="Verbindung erfolgreich!")
-        self.openMain.grid(row=2, column=3)
+        myGamepad.getControlSignals()
         return
 
     def convertString(self, string):

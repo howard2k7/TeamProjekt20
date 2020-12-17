@@ -11,13 +11,11 @@
 
 '''
 
-
+from tkinter import *
 import pygame as pg
 import json, os
 import zmq, math
 from threading import Thread
-
-
 
 
 
@@ -29,7 +27,10 @@ class Gamepad:
 
 
 	def __init__(self, ipAddress):
+		gui = Tk()
+
 		pg.init()
+
 
 		self.connectionEst = False
 		self.running = True
@@ -42,7 +43,7 @@ class Gamepad:
 		# Init connection
 		self.context = zmq.Context()
 		self.socket = self.context.socket(zmq.PAIR)
-		self.socket.connect("tcp://"+str(ipAddress)+":5555")
+		self.socket.connect(ipAddress)
 		# self.socket.connect("tcp://127.0.0.1:5555")
 
 		# Init return channel
@@ -147,10 +148,13 @@ class Gamepad:
 
 	def getControlSignals(self):
 
+
 		# Init Gamepad
 		gamepad, buttons = self.initializeJoystick()
 
-		#self.screen = pg.display.set_mode([40, 40])
+
+
+		self.screen = pg.display.set_mode([40, 40])
 
 		while self.running:
 
@@ -171,14 +175,11 @@ class Gamepad:
 					self.socket.send_string("Unknown key pressed!")
 
 			self.speed, self.angle = self.axis(gamepad)
-			if (self.speed > 0.0) or (self.angle):
-				self.socket.send_string("S: " + str(self.speed) + " A: " + str(self.angle))
-				#print("Speed " + str(self.speed) + " Winkel: " + str(self.angle))
+			print("Speed " + str(self.speed) + " Winkel: " + str(self.angle))
 
-			#pg.display.flip()
-			self.clock.tick(30)
+			pg.display.flip()
+			self.clock.tick(4)
 		pg.quit()
 		self.backChannel.join()
-		self.gui.join()
 
 
