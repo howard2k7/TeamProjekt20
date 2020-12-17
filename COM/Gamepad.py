@@ -1,3 +1,18 @@
+'''
+
+	Client for GamePad Control @ Control Side
+
+	Author: Fabian Schäfle
+	Projekt: PINI 20/21
+
+	The code
+	is documentation
+	enough
+
+
+'''
+
+
 import pygame as pg
 import json, os
 import zmq
@@ -9,7 +24,8 @@ from threading import Thread
 class Gamepad:
 
 	connectedPad = ""
-	buttonPressed = "standard"
+	connectionEst = False
+	buttonPressed = ""
 
 	def __init__(self):
 		pg.init()
@@ -31,7 +47,11 @@ class Gamepad:
 	def __del__(self):
 		self.backChannel.join()
 
-
+	def checkConnection(self):
+		try:
+			self.socket.send_string("SYN")
+		except KeyboardInterrupt:
+			print("SocketError")
 
 
 	def backReport(self):
@@ -41,6 +61,8 @@ class Gamepad:
 				print(input)
 				if input == "button":
 					print(self.buttonPressed)
+				if input == "ACK":
+					self.connectionEst = True
 			except KeyboardInterrupt:
 				break
 
