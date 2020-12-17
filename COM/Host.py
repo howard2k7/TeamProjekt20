@@ -1,3 +1,18 @@
+'''
+
+	Host for GamePad Control @ Robot Side
+
+	Author: Fabian Schäfle
+	Projekt: PINI 20/21
+
+	Demo with moving block in PyGame
+
+	The code
+	is documentation
+	enough
+
+'''
+
 import pygame as pg
 import zmq
 from threading import Thread
@@ -38,6 +53,9 @@ class Host():
 			try:
 				self.lastPressed = self.socket.recv_string()
 				print(self.lastPressed)
+				if (self.lastPressed == "SYN"):
+					self.socket.send_string("ACK")
+
 			except KeyboardInterrupt:
 				break
 
