@@ -14,6 +14,7 @@ Teamprojekt WS20_21 Team Rot
 - [ ] connection button without lambda function
 - [ ] Show info about connected Gamepad
 - [ ] Make shiny and pretty GUI (pink)
+- [ ] Show info about connected host IP address
 
 
 ### Gamepad
@@ -24,6 +25,7 @@ Teamprojekt WS20_21 Team Rot
 
 ### COM
 - [ ] rename control function ("Host.py" line 77)
+- [ ] Show IP of connected host IP address (SYN/ACK)
 
 ### Communication with Robot group
 - [ ] how to give them data (i.e. as instance of our host class)
