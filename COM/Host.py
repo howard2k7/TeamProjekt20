@@ -16,6 +16,7 @@
 import pygame as pg
 import zmq
 from threading import Thread
+import msgpack
 
 SCREEN_WIDTH = 500
 SCREEN_HIGHT = 500
@@ -51,10 +52,10 @@ class Host():
 	def control(self):
 		while True:
 			try:
-				self.lastPressed = self.socket.recv_string()
+				self.lastPressed = msgpack.unpackb(self.socket.recv())
 				print(self.lastPressed)
 				if (self.lastPressed == "SYN"):
-					self.socket.send_string("ACK")
+					self.socket.send(msgpack.packb("ACK"))
 
 			except KeyboardInterrupt:
 				break

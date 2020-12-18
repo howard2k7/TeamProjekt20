@@ -14,6 +14,7 @@ import pygame as pg
 import json, os
 import zmq, math
 from threading import Thread
+import msgpack
 
 
 class Gamepad:
@@ -53,7 +54,7 @@ class Gamepad:
 
 	def checkConnection(self):
 		try:
-			self.socket.send_string("SYN")
+			self.socket.send(msgpack.packb("SYN"))
 		except KeyboardInterrupt:
 			print("SocketError")
 
@@ -61,7 +62,7 @@ class Gamepad:
 	def backReport(self):
 		while True:
 			try:
-				input = self.socket.recv_string()
+				input = msgpack.unpackb(self.socket.recv())
 				print(input)
 				if input == "button":
 					print(self.buttonPressed)
@@ -79,8 +80,9 @@ class Gamepad:
 
 	def initializeJoystick(self):
 
+		buttons = []
 		if pg.joystick.get_count() < 1:
-			print("Could'nt find any gamepads\nPlease connect a gamepad and try again")
+			self.mother.write("Could'nt find any gamepads\nPlease connect a gamepad and try again")
 			exit()
 		else:
 			joystick = pg.joystick.Joystick(0)
@@ -167,14 +169,14 @@ class Gamepad:
 				if somethingPressed == 15:
 					self.running = False
 				if somethingPressed in buttons.keys():
-					self.socket.send_string(buttons[somethingPressed])
+					self.socket.send(msgpack.packb(buttons[somethingPressed]))
 					self.mother.write2(buttons[somethingPressed])
 				else:
-					self.socket.send_string("Unknown key pressed!")
+					self.socket.send(msgpack.packb("Unknown key pressed!"))
 
 			self.speed, self.angle = self.axis(gamepad)
 			if (self.speed > 0.0) or (self.angle):
-				self.socket.send_string("Speed: " + str(self.speed) + " Angle: " + str(self.angle))
+				self.socket.send(msgpack.packb("Speed: " + str(self.speed) + " Angle: " + str(self.angle)))
 				self.mother.write2("Speed: " + str(self.speed) + " Angle: " + str(self.angle))
 				#print("Speed " + str(self.speed) + " Winkel: " + str(self.angle))
 
@@ -182,6 +184,6 @@ class Gamepad:
 			self.clock.tick(30)
 		pg.quit()
 		self.backChannel.join()
-		self.gui.join()
+
 
 
