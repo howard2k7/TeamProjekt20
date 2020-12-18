@@ -80,7 +80,7 @@ class Gamepad:
 
 	def initializeJoystick(self):
 
-		buttons = []
+		buttons = {}
 		if pg.joystick.get_count() < 1:
 			self.mother.write("Could'nt find any gamepads\nPlease connect a gamepad and try again")
 			exit()
