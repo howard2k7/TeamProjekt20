@@ -9,7 +9,7 @@ class mainGui:
     def __init__(self, master):
         self.master = master
         master.geometry("1500x700")
-        master.config(bg="grey")
+        master.config(bg="white")
         master.title("Main Interface")
         master.resizable(False, False)
 
@@ -80,13 +80,13 @@ class mainGui:
         self.descriptionLabel = Label(self.frameTopRight, text="Gebe die IP-Adresse des Servers ein !")
         self.testLabel2 = Label(self.frameTopRight, text="IP Adresse:")
         self.conLabel = Label(self.frameTopRight, text="Verbindung nicht aufgebaut !", bg="red")
-        self.placeHolder = Label(self.frameTopRight, bg="grey")
+
 
         # arrange labels
         self.testLabel2.grid(row=2, column=0)
         self.descriptionLabel.grid(row=0, column=0)
         self.conLabel.grid(row=0, column=2)
-        self.placeHolder.grid(row=1, column=1)
+
 
         # create input field
         self.ipField = Entry(self.frameTopRight)
