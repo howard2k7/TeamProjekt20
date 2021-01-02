@@ -94,6 +94,7 @@ class mainGui:
 
         # arrange input field
         self.ipField.grid(row=2, column=1)
+        self.ipField.insert(END, "localhost")
 
         # create button
         self.connectButton = Button(self.frameTopRight, text="Verbinden", pady=20, padx=20,

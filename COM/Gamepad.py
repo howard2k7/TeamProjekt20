@@ -21,6 +21,7 @@ class Gamepad:
 
 	connectedPad = ""
 	buttonPressed = ""
+	delayHelper = 0
 
 	def __init__(self, ipAddress, mother):
 
@@ -149,6 +150,13 @@ class Gamepad:
 
 		return abs(a), c
 
+	def checkDelay(self):
+		if self.delayHelper > 0:
+			if self.delayHelper < 7:
+				self.delayHelper = self.delayHelper + 1
+			else:
+				self.delayHelper = 0
+
 	def setNextHeight(self, actual):
 		if actual == "Höhe 1":
 			self.mother.selectedHeight.set("Höhe 2")
@@ -180,7 +188,9 @@ class Gamepad:
 				if somethingPressed in buttons.keys():
 					if buttons[somethingPressed] == "X":
 						actualHeight = self.mother.selectedHeight.get()
-						self.setNextHeight(actualHeight)
+						if self.delayHelper == 0:
+							self.setNextHeight(actualHeight)
+							self.delayHelper = 1
 					else:
 						self.socket.send(msgpack.packb(buttons[somethingPressed]))
 						self.mother.write2(buttons[somethingPressed])
@@ -196,6 +206,8 @@ class Gamepad:
 				#print("Speed " + str(self.speed) + " Winkel: " + str(self.angle))
 
 			#pg.display.flip()
+
+			self.checkDelay()
 			self.clock.tick(30)
 		pg.quit()
 		self.backChannel.join()
