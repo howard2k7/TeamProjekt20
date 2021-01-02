@@ -49,7 +49,7 @@ class Host():
 
 	lastPressed = ""
 
-	def control(self):
+	def channel(self):
 		while True:
 			try:
 				self.lastPressed = msgpack.unpackb(self.socket.recv())
@@ -74,7 +74,7 @@ class Host():
 		self.socket = self.context.socket(zmq.PAIR)
 		self.socket.bind("tcp://*:5555")
 
-		self.control = Thread(target=self.control, args=())
+		self.control = Thread(target=self.channel, args=())
 		self.control.start()
 
 		self.playing()
@@ -90,8 +90,11 @@ class Host():
 					self.running = False
 			if self.lastPressed == "QUIT":
 				self.running = False
-			self.Robot.move(self.lastPressed)
-			self.lastPressed = ""
+			elif self.lastPressed == "SYN":
+				pass
+			else:
+				self.Robot.move(self.lastPressed)
+				self.lastPressed = ""
 
 			self.screen.fill((0, 0, 0))
 			self.surf = pg.Surface((50, 50))

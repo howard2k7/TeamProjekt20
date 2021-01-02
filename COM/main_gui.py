@@ -102,16 +102,21 @@ class mainGui:
         # arrange button
         self.connectButton.grid(row=2, column=2)
 
+    def checkIP(self, textInput):
+        ipaddressOK = re.match(r"^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$", textInput)
+
+        if ipaddressOK:
+            return ipaddressOK.string
+        elif textInput == "localhost":
+            return "127.0.0.1"
+        else:
+            return ""
+
     def connectionClick(self):
         self.conLabel.config(bg="yellow", text="Verbindung wird aufgebaut")
         self.master.update()
 
-        ipaddress = ""
-        text = self.ipField.get()
-        ipaddressOK = re.match(r"^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$",text)
-        
-        if ipaddressOK:
-            ipaddress = ipaddressOK.string
+        ipaddress  = self.checkIP(self.ipField.get())
 
         if ipaddress:
 
@@ -122,15 +127,14 @@ class mainGui:
 
             # checking the answer
             if (myGamepad.getConnectionStatus()):
-                self.write("Connected....")
+                self.write("Connected to " + ipaddress + "....")
                 self.connectionIsPositive(myGamepad)
             else:
                 print("Verbindungs TimeOut")
                 self.conLabel.config(text="Verbindung nicht aufgebaut !", bg="red")
             # myGamepad.getControlSignals()
         else:
-            print("Fehler nichts eigegeben!")
-            self.conLabel.config(bg="red", text="Verbindung fehlgeschlagen")
+            self.conLabel.config(bg="red", text="Keine IP Adresse/falsches Format")
         # del myGamepad
 
     def connectionIsPositive(self, myGamepad):
@@ -174,11 +178,17 @@ class mainGui:
         self.write(str(help))
 
     def write(self, txt):
-        self.output.insert(END, str(self.convertString(txt) + "\n"))
+        if txt == "BLANK":
+            self.output.insert(END, "\n")
+        else:
+            self.output.insert(END, str(txt + "\n"))
         self.output.see("end")
 
     def write2(self, txt):
-        self.output2.insert(END, str(txt + "\n"))
+        if txt == "BLANK":
+            self.output2.insert(END, "\n")
+        else:
+            self.output2.insert(END, str(txt + "\n"))
         self.output2.see("end")
 
 

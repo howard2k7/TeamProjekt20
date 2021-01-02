@@ -82,8 +82,8 @@ class Gamepad:
 
 		buttons = {}
 		if pg.joystick.get_count() < 1:
-			self.mother.write("Could'nt find any gamepads\nPlease connect a gamepad and try again")
-			exit()
+			self.mother.write("Could'nt find any gamepads")
+			self.mother.write("Please connect a gamepad and try again")
 		else:
 			joystick = pg.joystick.Joystick(0)
 			joystick.init()
@@ -107,12 +107,12 @@ class Gamepad:
 			return joystick, buttons
 
 	def printGamepadInformation(self, index, gamepad):
-		print("Using Gamepad " + str(index))
-		print("_________________")
-		print(gamepad.get_name())
-		print("Buttons: " + str(gamepad.get_numbuttons()))
-		print("Axis: " + str(gamepad.get_numaxes()))
-		print("Hats: " + str(gamepad.get_numhats()))
+		self.mother.write("Using Gamepad " + str(index))
+		self.mother.write("_________________")
+		self.mother.write(gamepad.get_name())
+		self.mother.write("Buttons: " + str(gamepad.get_numbuttons()))
+		self.mother.write("Axis: " + str(gamepad.get_numaxes()))
+		self.mother.write("Hats: " + str(gamepad.get_numhats()))
 
 	def printPressedButton(self, joystick, buttons):
 		buttonCount = joystick.get_numbuttons()
@@ -141,6 +141,7 @@ class Gamepad:
 		c = round(math.atan2(a, b) * 180 / (math.pi) - 90, 0)  #
 		if c < 0:
 			c += 360
+
 		if a == 0.0:
 			c = 0
 		c = round(c, 0)  # rundet auf ganze Zahl
@@ -148,12 +149,20 @@ class Gamepad:
 
 		return abs(a), c
 
-	def getControlSignals(self):
+	def setNextHeight(self, actual):
+		if actual == "Höhe 1":
+			self.mother.selectedHeight.set("Höhe 2")
+		elif actual == "Höhe 2":
+			self.mother.selectedHeight.set("Höhe 3")
+		elif actual == "Höhe 3":
+			self.mother.selectedHeight.set("Höhe 1")
 
+	def getControlSignals(self):
 		# Init Gamepad
 		gamepad, buttons = self.initializeJoystick()
 
 		#self.screen = pg.display.set_mode([40, 40])
+		self.printGamepadInformation(0, gamepad)
 
 		while self.running:
 
@@ -169,13 +178,19 @@ class Gamepad:
 				if somethingPressed == 15:
 					self.running = False
 				if somethingPressed in buttons.keys():
-					self.socket.send(msgpack.packb(buttons[somethingPressed]))
-					self.mother.write2(buttons[somethingPressed])
+					if buttons[somethingPressed] == "X":
+						actualHeight = self.mother.selectedHeight.get()
+						self.setNextHeight(actualHeight)
+					else:
+						self.socket.send(msgpack.packb(buttons[somethingPressed]))
+						self.mother.write2(buttons[somethingPressed])
 				else:
 					self.socket.send(msgpack.packb("Unknown key pressed!"))
 
 			self.speed, self.angle = self.axis(gamepad)
-			if (self.speed > 0.0) or (self.angle):
+			if (self.speed > 0.0001) or (self.angle):
+
+
 				self.socket.send(msgpack.packb("Speed: " + str(self.speed) + " Angle: " + str(self.angle)))
 				self.mother.write2("Speed: " + str(self.speed) + " Angle: " + str(self.angle))
 				#print("Speed " + str(self.speed) + " Winkel: " + str(self.angle))
