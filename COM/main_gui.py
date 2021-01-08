@@ -2,7 +2,7 @@ from tkinter import *
 import threading
 import verbindungsTest
 import time
-import Gamepad as gp
+import gamepad as gp
 import re
 
 class mainGui:
@@ -57,6 +57,8 @@ class mainGui:
         self.selectedHeight.set("Höhe 1")
         self.selectedPace = StringVar(main)
         self.selectedPace.set("Geschwindigkeit 1")
+        self.selectedProto = StringVar(main)
+        self.selectedProto.set("TCP")
 
         # creating drop menus
         self.dropPace = OptionMenu(self.frameTop, self.selectedPace, "Geschwindigkeit 1", "Geschwindigkeit 2", "Geschwindigkeit 3")
@@ -64,6 +66,8 @@ class mainGui:
         self.dropPace.config(padx=20)
         self.dropHeight = OptionMenu(self.frameTop, self.selectedHeight, "Höhe 1", "Höhe 2", "Höhe 3")
         self.dropHeight.grid(row=1, column=1)
+        self.dropProto = OptionMenu(self.frameTopRight, self.selectedProto, "UDP", "TCP")
+        self.dropProto.grid(row=2, column=4)
 
         # creating Buttons
         self.heightSelectedButton = Button(self.frameTop, text="Höhe übernehmen", pady=20, padx=20, command=lambda: threading.Thread(target=self.heightSelect).start())
@@ -78,30 +82,35 @@ class mainGui:
 
         # create labels
         self.descriptionLabel = Label(self.frameTopRight, text="Gebe die IP-Adresse des Servers ein !")
-        self.testLabel2 = Label(self.frameTopRight, text="IP Adresse:")
+        self.ipLabel = Label(self.frameTopRight, text="IP Adresse:")
+        self.portLabel = Label(self.frameTopRight, text="Port:")
         self.conLabel = Label(self.frameTopRight, text="Verbindung nicht aufgebaut !", bg="red")
 
 
         # arrange labels
-        self.testLabel2.grid(row=2, column=0)
+        self.ipLabel.grid(row=2, column=0)
         self.descriptionLabel.grid(row=0, column=0)
         self.conLabel.grid(row=0, column=2)
+        self.portLabel.grid(row=2, column=2)
 
 
         # create input field
         self.ipField = Entry(self.frameTopRight)
         self.ipField.config(width=25)
+        self.portField = Entry(self.frameTopRight)
+        self.portField.config(width=10)
 
         # arrange input field
         self.ipField.grid(row=2, column=1)
         self.ipField.insert(END, "localhost")
+        self.portField.grid(row=2, column=3)
 
         # create button
         self.connectButton = Button(self.frameTopRight, text="Verbinden", pady=20, padx=20,
                                     command=lambda: threading.Thread(target=self.connectionClick).start())
 
         # arrange button
-        self.connectButton.grid(row=2, column=2)
+        self.connectButton.grid(row=3, column=0)
 
     def checkIP(self, textInput):
         ipaddressOK = re.match(r"^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$", textInput)
@@ -118,6 +127,12 @@ class mainGui:
         self.master.update()
 
         ipaddress  = self.checkIP(self.ipField.get())
+
+        if self.selectedProto.get() == "TCP":
+            self.write("TCP ausgewählt")
+        elif self.selectedProto.get() == "UDP":
+            self.write("UDP ausgewählt")
+        self.write(self.portField.get())
 
         if ipaddress:
 
@@ -197,4 +212,5 @@ if __name__ == "__main__":
     main = Tk()
     my_maingui = mainGui(main)
     main.mainloop()
+
 
