@@ -11,7 +11,7 @@ class mainGui:
         master.geometry("1500x700")
         master.config(bg="white")
         master.title("Main Interface")
-        master.resizable(False, False)
+        master.resizable(True, True)
 
         #building frame grid
         self.frameTop = Frame(master, padx=50, pady=50)

@@ -207,6 +207,7 @@ class Gamepad:
 
 			#pg.display.flip()
 
+			## TODO: Change to Array for more than 1 valuechange (Start, End e.t)
 			self.checkDelay()
 			self.clock.tick(30)
 		pg.quit()
