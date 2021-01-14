@@ -45,7 +45,7 @@ class Player(pg.sprite.Sprite):
 			self.rect.move_ip(5,0)
 
 
-class Host():
+class Host:
 
 	lastPressed = ""
 

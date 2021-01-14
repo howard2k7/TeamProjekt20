@@ -6,14 +6,17 @@ import numpy as np
 from mincom import MinCom
 from HexaplotSender import HexaplotSender
 from LegDummy import LegDummy
+from COM.Host import Host
 
 
 class Robot:
-    def __init__(self, testMode, coordPoints):
+    def __init__(self, testMode):
 
         self.testMode = testMode  # Flag für Testmodus (Hexaplotter verwenden?)
 
         self.legs = ()
+
+        self.host = Host()
 
         if self.testMode:
             # hexaplotter
@@ -27,17 +30,20 @@ class Robot:
             # leg(nummer int 1-6, bool True(real leg), int idAlpha, int idBeta, int idGamma)  -> siehe Klasse LegDummy
         else:
             ...
+            #self.host = Host()
             # TODO echte legs zuweisen
 
         self.extremeZ = 0.03  # Extrempunkt maxZ
         self.moveDiameter = 0.25  # Durchmesser vom Arbeitsbereich nach X
-        self.moveRadiusDenominator = 2.00  # Teiler bestimmt gewuenschte Hoehe vom Radius
         #  self.coordPoints = coordPoints  # wird durch realDynCoorNumber abgelöst
+        self.coordPoints = 510
         self.traj = self.createTraj()  # wird bei aktuell funktionierender Methode verwendet
 
         self.cycleTime = 0.05  # Durchlaufzeit einer Iteration in Sekunden
         self.oneStepTime = 1.0  # Durchlaufzeit einer ganzen Bewegung durch die Trajektorienliste
-        self.coordPoints = math.floor(self.cycleTime / self.oneStepTime)
+
+
+        #self.coordPoints = math.floor(self.cycleTime / self.oneStepTime)
 
         self.trajAIndex = 0  # Schwingungsanfangsindex
         self.trajBIndex = math.floor(len(self.traj)/2)  # Stemmungsanfangsindex
@@ -195,7 +201,7 @@ class Robot:
             time.sleep(self.cycleTime - periodLength)  #TODO velocity zwischenpunkte
 
     def getNewCommands(self):  # erhalte neue Kommandos (mincom)
-        commands = self.mc.getData()
+        """        commands = self.mc.getData()
         # Überprüfe, ob neue Kommandos vorhanden
         if commands != 0:
             commands = list(map(float, self.mc.getData()))  # konvertiere zu int Objekten
@@ -203,8 +209,15 @@ class Robot:
             return
         print(commands)
         # Übernehme neue Kommandos in Robot Klasse Parameter
-        """self.degree = commands[0]
-        self.velocity = commands[1]"""
+        #self.degree = commands[0]
+        #self.velocity = commands[1]
+        self.cachedCommands = commands"""
+        commands = self.host.lastPressed  # list[velocity(0.0 bis 1.0)],[degree(rad)]
+        if commands != 0:
+            commands = list(map(float, commands))  # konvertiere zu int Objekten
+        elif self.cachedCommands == commands or commands == 0:  # keine neuen Kommandos
+            return
+        #  print(commands)
         self.cachedCommands = commands
 
     def createRotatedVector(self, vector, degree):  # erstellt rotierten Vektor um z Achse um Grad degree
@@ -217,5 +230,5 @@ class Robot:
 
 
 if __name__ == "__main__":
-    rb = Robot(True, 567)
+    rb = Robot(True)
     rb.iterate()
