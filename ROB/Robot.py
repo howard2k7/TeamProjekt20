@@ -16,13 +16,14 @@ class Robot:
 
         self.legs = ()
 
+        # Kommunikationsobjekt erzeugen
         self.host = Host()
 
         if self.testMode:
             # hexaplotter
-            self.hs = HexaplotSender()
-            # Kommunikationsobjekt erzeugen
-            self.mc = MinCom()
+            #self.hs = HexaplotSender()
+            # Testkommunikationsobjekt erzeugen
+            # self.mc = MinCom()
             # sechs Beinobjekte mit entsprechenden Joint IDs erzeugen
             legs = (LegDummy(1, False, 1, 3, 5), LegDummy(2, False, 2, 4, 6),
                     LegDummy(3, False, 8, 10, 12), LegDummy(4, False, 14, 16, 18),
@@ -30,20 +31,17 @@ class Robot:
             # leg(nummer int 1-6, bool True(real leg), int idAlpha, int idBeta, int idGamma)  -> siehe Klasse LegDummy
         else:
             ...
-            #self.host = Host()
             # TODO echte legs zuweisen
 
         self.extremeZ = 0.03  # Extrempunkt maxZ
         self.moveDiameter = 0.25  # Durchmesser vom Arbeitsbereich nach X
         #  self.coordPoints = coordPoints  # wird durch realDynCoorNumber abgelöst
-        self.coordPoints = 510
-        self.traj = self.createTraj()  # wird bei aktuell funktionierender Methode verwendet
-
+        #  self.coordPoints = 510
         self.cycleTime = 0.05  # Durchlaufzeit einer Iteration in Sekunden
         self.oneStepTime = 1.0  # Durchlaufzeit einer ganzen Bewegung durch die Trajektorienliste
-
-
-        #self.coordPoints = math.floor(self.cycleTime / self.oneStepTime)
+        self.coordPoints = math.floor(self.oneStepTime/self.cycleTime)
+        self.traj = self.createTraj()  # wird bei aktuell funktionierender Methode verwendet
+        print(self.traj)
 
         self.trajAIndex = 0  # Schwingungsanfangsindex
         self.trajBIndex = math.floor(len(self.traj)/2)  # Stemmungsanfangsindex
@@ -128,15 +126,17 @@ class Robot:
             # Trajektorie aendern wenn ein Bein in der Startposition
 
             if self.cachedCommands:
-                if self.velocity != self.cachedCommands[1]:
-                    self.velocity = self.cachedCommands[1]
+                if self.velocity != self.cachedCommands[0]:
+                    self.velocity = self.cachedCommands[0]
                     print("Velocity: " + str(self.velocity))
                     if self.velocity == 0.0:  # Breche Iterationsdurchlauf ab, wenn keine Geschwindigkeit
                         print("Roboter steht!")
                         return
+                """if self.extremeZ != self.cachedCommands[2]:
+                    self.extremeZ *= self.cachedCommands[2]"""
                 # Überprüfe, ob aktuelle Leg Position in der Mitte der Trajektorie liegt,um Trajektorie um Z zu rotieren
-                if self.cachedCommands[0] != self.degree and (self.trajAIndex == 0 or self.trajBIndex == 0):
-                    self.degree = self.cachedCommands[0]
+                if self.cachedCommands[1] != self.degree and (self.trajAIndex == 0 or self.trajBIndex == 0):
+                    self.degree = self.cachedCommands[1]
                     print("Rot. Degree: " + str(self.degree))
                     tmpTraj = list(copy.deepcopy(self.traj))
                     for i in range(len(self.traj)):
@@ -144,7 +144,7 @@ class Robot:
                         # print("RotMatrix: " + str(self.rotMatrixZ()))
                         tmpTraj[i] = self.createRotatedVector(tmpTraj[i], self.degree)
                         # np.round(np.array,digits) falls gerundet werden soll, sonst raw
-                        self.traj[i] = tuple(tmpTraj[i].copy())  # "1" bleibt im Vektor
+                        self.traj[i] = tuple(copy.deepcopy(tmpTraj[i]))  # "1" bleibt im Vektor
                         #  print("Trajektorie: " + str(self.traj[i][:-1]))  # zeige Traj. ohne "1"
 
             # Überprüfe ob trajIndices außerhalb von TrajListe, sonst auf -1 setzen
@@ -177,7 +177,8 @@ class Robot:
             # Beinobjekte übergeben
             # print(allCurrentPositions)
             if self.testMode:
-                self.hs.send_points(allCurrentPositions)  # sende an plotter
+                ...
+                #self.hs.send_points(allCurrentPositions)  # sende an plotter
             elif self.legs[0][1] and self.legs[1][1] and self.legs[2][1] and self.legs[3][1] and self.legs[4][1] and self.legs[5][1]:
                 # while not posReached:
                 # self.legs[0].setFootPosPoints(allCurrentPositions[0])  # real bei True
@@ -212,20 +213,20 @@ class Robot:
         #self.degree = commands[0]
         #self.velocity = commands[1]
         self.cachedCommands = commands"""
-        self.host.channel()
         commands = self.host.lastPressed  # list[velocity(0.0 bis 1.0)],[degree(rad)]
         if commands != 0:
-            commands = list(map(float, commands))  # konvertiere zu int Objekten "speed: 0.0 degree: 0.0"
+            commands = self.host.lastPressed  # konvertiere zu int Objekten "speed: 0.0 degree: 0.0"
         elif self.cachedCommands == commands or commands == 0:  # keine neuen Kommandos
             return
         #  print(commands)
         self.cachedCommands = commands
 
     def createRotatedVector(self, vector, degree):  # erstellt rotierten Vektor um z Achse um Grad degree
-        rotationMatrix = np.array([(math.cos(degree), -math.sin(degree)), 0, 0,
+        rotationMatrix = np.array([(math.cos(degree), -math.sin(degree), 0, 0),
                                   (math.sin(degree), math.cos(degree), 0, 0),
                                   (0, 0, 1, 0),
                                   (0, 0, 0, 1)])
+        print(type(rotationMatrix))
         rotatedVector = rotationMatrix.dot(vector)
         return rotatedVector
 
@@ -233,3 +234,4 @@ class Robot:
 if __name__ == "__main__":
     rb = Robot(True)
     rb.iterate()
+

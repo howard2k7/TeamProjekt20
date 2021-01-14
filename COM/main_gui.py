@@ -142,7 +142,8 @@ class mainGui:
             time.sleep(2)
 
             # checking the answer
-            if (myGamepad.getConnectionStatus()):
+            #if (myGamepad.getConnectionStatus()):
+            if True:
                 self.write("Connected to " + ipaddress + "....")
                 self.connectionIsPositive(myGamepad)
             else:

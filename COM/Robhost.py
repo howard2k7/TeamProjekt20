@@ -20,7 +20,7 @@ import msgpack
 
 class Host:
 
-	lastPressed = ""
+	lastPressed = []
 
 	def channel(self):
 		print("channel")
@@ -28,9 +28,14 @@ class Host:
 			try:
 				self.lastPressed = msgpack.unpackb(self.socket.recv())
 				print(self.lastPressed)
-				if (self.lastPressed == "SYN"):
+				if (self.lastPressed == 1):
 					print("SYN")
 					self.socket.send(msgpack.packb("ACK"))
+					self.lastPressed.clear()
+				'''if (self.lastPressed == "SYN"):
+					print("SYN")
+					self.socket.send(msgpack.packb("ACK"))
+					self.lastPressed.clear()'''
 
 			except KeyboardInterrupt:
 				break
