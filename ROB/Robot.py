@@ -9,82 +9,91 @@ from LegDummy import LegDummy
 
 
 class Robot:
-    def __init__(self, testMode):
+    def __init__(self, testMode, coordPoints):
 
         self.testMode = testMode  # Flag für Testmodus (Hexaplotter verwenden?)
 
-        self.cycleTime = 1.5  # Durchlaufzeit in Sekunden
+        self.legs = ()
+
+        if self.testMode:
+            # hexaplotter
+            self.hs = HexaplotSender()
+            # Kommunikationsobjekt erzeugen
+            self.mc = MinCom()
+            # sechs Beinobjekte mit entsprechenden Joint IDs erzeugen
+            legs = (LegDummy(1, False, 1, 3, 5), LegDummy(2, False, 2, 4, 6),
+                    LegDummy(3, False, 8, 10, 12), LegDummy(4, False, 14, 16, 18),
+                    LegDummy(5, False, 13, 15, 17), LegDummy(6, False, 7, 9, 11))
+            # leg(nummer int 1-6, bool True(real leg), int idAlpha, int idBeta, int idGamma)  -> siehe Klasse LegDummy
+        else:
+            ...
+            # TODO echte legs zuweisen
+
+        self.extremeZ = 0.03  # Extrempunkt maxZ
+        self.moveDiameter = 0.25  # Durchmesser vom Arbeitsbereich nach X
+        self.moveRadiusDenominator = 2.00  # Teiler bestimmt gewuenschte Hoehe vom Radius
+        #  self.coordPoints = coordPoints  # wird durch realDynCoorNumber abgelöst
+        self.traj = self.createTraj()  # wird bei aktuell funktionierender Methode verwendet
+
+        self.cycleTime = 0.05  # Durchlaufzeit einer Iteration in Sekunden
+        self.oneStepTime = 1.0  # Durchlaufzeit einer ganzen Bewegung durch die Trajektorienliste
+        self.coordPoints = math.floor(self.cycleTime / self.oneStepTime)
+
         self.trajAIndex = 0  # Schwingungsanfangsindex
         self.trajBIndex = math.floor(len(self.traj)/2)  # Stemmungsanfangsindex
 
         # Roboter Parameter
         self.velocity = 0.0  # Geschwindigkeit (0.0 0.5 1.0)
         self.degree = 0  # Grad der Bewegung/Trajektorie in Radiant (für Bewegungsänderung)
-        self.height = 1  # TODO: Höhe (z Koordinate) der Beine Trajektorie <- davon abziehen (Lage/Ort der Beine)
-
-        self.move_maxHeight = 0.00  # TODO Max Auslenkung Höhe messen in z
-        self.move_maxLength = 0.00  # TODO Max Auslenkung Länge/Durchmesser in y Richtung
 
         self.cachedCommands = []  # Kommandos cachen zur späteren Überprüfung (degree [0], velocity [1])
 
         # sechs Startpunkte für Beine erzeugen
         self.legsStartPos = self.createLegStartPos()
 
-        # sechs Beinobjekte mit entsprechenden Joint IDs erzeugen
-        self.legs = (Leg(1, False, 1, 3, 5), Leg(2, False, 2, 4, 6),
-                     Leg(3, False, 8, 10, 12), Leg(4, False, 14, 16, 18),
-                     Leg(5, False, 13, 15, 17), Leg(6, False, 7, 9, 11))
-                    # leg(nummer int 1-6, bool True(real leg), int idAlpha, int idBeta, int idGamma)  -> Klasse anpassen oder von Leg-Gruppe importieren
-
-        self.traj = []
-
-        if self.testMode or not (self.legs[0][1] and self.legs[1][1] and self.legs[2][1] and self.legs[3][1] and self.legs[4][1] and self.legs[5][1]):
-            # Test Trajektorie erstellen
-            self.traj = [(0.0, 0.0, 0.0, 1.0), (-0.5, 0.0, 0.0, 1.0), (-1.0, 0.0, 0.0, 1.0), (-0.5, 0.0, 0.5, 1.0),
-                         (0.0, 0.0, 1.0, 1.0), (0.5, 0.0, 0.5, 1.0), (1.0, 0.0, 0.0, 1.0), (0.5, 0.0, 0.0, 1.0)]
-            # hexaplotter
-            self.hs = HexaplotSender()
-            # Kommunikationsobjekt erzeugen
-            self.mc = MinCom()
-
         # Trajektorienliste mit Trajektorienpunkten erzeugen
 
-        self.traj = self.createTraj()
-        # TODO Funktion zum ermitteln der (mit max/min Länge) Trajektorienpunkte des Roboters
-        # TODO Arbeitsbereich Schrittweite Beine bekommen
-
+        # self.traj = [(0.0, 0.0, 0.0, 1.0), (-0.5, 0.0, 0.0, 1.0), (-1.0, 0.0, 0.0, 1.0), (-0.5, 0.0, 0.5, 1.0),
+        #             (0.0, 0.0, 1.0, 1.0),  (0.5, 0.0, 0.5, 1.0),  (1.0, 0.0, 0.0, 1.0), (0.5, 0.0, 0.0, 1.0)]
         # "1" hinzugefuegt und Startkoordinate geaendert für Trajekt.mitte
         # Startkoordinate (Index 0) muss Mitte sein -> 1. Tupel von createTraj
         # wird durch funktionierender Methode abgelöst
 
-        # self.traj = createTraj()  # wird bei funktionierender Methode verwendet
-        self.tempStaticCoorNumber = 50  # wird durch realDynCoorNumber abgelöst
-        # self.realDynCoorNumber = Todo NEW: dynamisch berechnen
-
-        self.moveRadius = 0.05
-        self.moveDiameter = 0.1
-
     def createTraj(self):
-        traj = []  # Todo NEW: x und z noch nicht richtig
-        for i in range(math.floor(self.tempStaticCoorNumber / 4)):  # floor = abrunden, ceil =aufrunden
-            x = -i / self.moveRadius  # [0; -radius] x von 0 bis -radius zusammenbasteln
-            traj += [(x, 0.0, 0.0, 1.0), ]
-        for i in range(math.floor(self.tempStaticCoorNumber / 4)):
-            x = i  # (-radius; 0] x von -radius bis 0 zusammenbasteln
-            z = self.getZfromX(x)  # (0; +maxHeight] z von 0 bis +maxHeight zusammenbasteln
-            traj += [(x, 0.0, z, 1.0), ]
-        for i in range(math.floor(self.tempStaticCoorNumber / 4)):
-            x = i  # (0; +radius] x von 0 bis +radius zusammenbasteln
-            z = self.getZfromX(x)  # (maxHeight; 0] z von +maxHeight bis 0 zusammenbasteln
-            traj += [(x, 0.0, z, 1.0), ]
-        for i in range(math.floor(self.tempStaticCoorNumber / 4)):
-            x = self.moveRadius - i / self.moveRadius  # (+radius; 0) x von +radius bis 0 zusammenbasteln
-            traj += [(x, 0.0, 0.0, 1.0), ]
-        return traj
-
-    def getZfromX(self, x):
-        z = 2 * math.pow(x, 2) + self.moveRadius
-        return z  # Todo NEW: Koeffizient 2 sorgt nicht für Schnittpunkte (-self.moveRadius,0) und (self.moveRadius,0)
+        if self.coordPoints >= 4:
+            traj = []
+            for i in range(math.ceil(self.coordPoints / 4)):
+                x = (-i / (math.ceil(self.coordPoints / 4) - 1)) * (self.moveDiameter / 2)
+                traj += [(x, 0.0, 0.0, 1.0), ]
+            print("Koordinate zwischen Stemm- und Schwingphase: \t" + str(traj[-1]) + " (aus Zeile 69)")  # dient zu Testzwecken -> zeigt Uebergang
+            if ((self.coordPoints % 4) == 0) or ((self.coordPoints % 4) == 3):
+                for i in range(1, math.ceil(self.coordPoints / 4) + 2):
+                    x = -self.moveDiameter / 2 + (i / (math.ceil(self.coordPoints / 4) + 1)) * (self.moveDiameter / 2)
+                    z = (-self.extremeZ / math.pow(self.moveDiameter, 2)) * math.pow(x, 2) + self.extremeZ
+                    traj += [(x, 0.0, z, 1.0), ]
+            elif (self.coordPoints % 4) == 1:
+                for i in range(1, math.ceil(self.coordPoints / 4)):
+                    x = -self.moveDiameter / 2 + (i / (math.ceil(self.coordPoints / 4) - 1)) * (self.moveDiameter / 2)
+                    z = (-self.extremeZ / math.pow(self.moveDiameter, 2)) * math.pow(x, 2) + self.extremeZ
+                    traj += [(x, 0.0, z, 1.0), ]
+            elif (self.coordPoints % 4) == 2:
+                for i in range(1, math.ceil(self.coordPoints / 4) + 1):
+                    x = -self.moveDiameter / 2 + (i / math.ceil(self.coordPoints / 4)) * (self.moveDiameter / 2)
+                    z = (-self.extremeZ / math.pow(self.moveDiameter, 2)) * math.pow(x, 2) + self.extremeZ
+                    traj += [(x, 0.0, z, 1.0), ]
+            print("Koordinate am hoechsten Punkt: \t\t\t\t\t" + str(traj[-1]) + " (aus Zeile 85)")
+            for i in range(1, math.ceil(self.coordPoints / 4) + 1):
+                x = (i / math.ceil(self.coordPoints / 4)) * (self.moveDiameter / 2)
+                z = (-self.extremeZ / math.pow(self.moveDiameter, 2)) * math.pow(x, 2) + self.extremeZ
+                traj += [(x, 0.0, z, 1.0), ]
+            for i in range(1, math.floor(self.coordPoints / 4)):
+                x = self.moveDiameter / 2 - math.floor(self.coordPoints / 4) * (self.moveDiameter / 2)
+                traj += [(x, 0.0, 0.0, 1.0), ]
+            print("Laenge von traj: " + str(len(traj)) + ".\t Geforderte Koordinatenanzahl: " + str(self.coordPoints) + " (aus Zeile 93)")  # dient zu Testzwecken
+            return traj
+        else:
+            print("Fehler: Anzahl der Koordinaten liegt unter 4")
+            return
 
     def createLegStartPos(self):  # evt. Liste direkt erstellen mit gemessenen Werten
         # Position in Metern!
@@ -109,9 +118,10 @@ class Robot:
 
             self.getNewCommands()  # Kommunikationsobjekt abfragen
             # wenn neue Kommandos dann ggf. (Richtungsänderung, Höhenverstellung, Geschwindigkeitsreduzierung/erhöhung)
+            # -> Hoehenverstellung ueber self.moveRadius bzw. self.moveRadiusDenominator
             # Trajektorie aendern wenn ein Bein in der Startposition
 
-            if self.cachedCommands:  # Kommandos liegen vor
+            if self.cachedCommands:
                 if self.velocity != self.cachedCommands[1]:
                     self.velocity = self.cachedCommands[1]
                     print("Velocity: " + str(self.velocity))
@@ -151,11 +161,9 @@ class Robot:
             allCurrentPositions = []
             for i, val in enumerate(self.legs):  # 6 neue Koordinaten in Liste speichern
                 if (i % 2) == 0:
-                    # TODO move Leg to aPosition
                     aPosition = tuple(np.add(val.getFootPosition(), legATraj))
                     allCurrentPositions.append(aPosition)
                 else:
-                    # TODO move Leg to bPosition
                     bPosition = tuple(np.add(val.getFootPosition(), legBTraj))
                     allCurrentPositions.append(bPosition)
 
@@ -183,6 +191,7 @@ class Robot:
 
             tEnd = time.perf_counter()
             periodLength = tEnd - tStart
+            print("periodLength: " + str(periodLength) + " (aus Zeile 198)")  # dient zu Testzwecken
             time.sleep(self.cycleTime - periodLength)  #TODO velocity zwischenpunkte
 
     def getNewCommands(self):  # erhalte neue Kommandos (mincom)
@@ -208,5 +217,5 @@ class Robot:
 
 
 if __name__ == "__main__":
-    rb = Robot(True)
+    rb = Robot(True, 567)
     rb.iterate()
