@@ -69,31 +69,38 @@ class Robot:
             for i in range(math.ceil(self.coordPoints / 4)):
                 x = (-i / (math.ceil(self.coordPoints / 4) - 1)) * (self.moveDiameter / 2)
                 traj += [(x, 0.0, 0.0, 1.0), ]
-            print("Koordinate zwischen Stemm- und Schwingphase: \t" + str(traj[-1]) + " (aus Zeile 69)")  # dient zu Testzwecken -> zeigt Uebergang
+            print("\nErste Koordinate: \t\t\t\t\t\t\t\t" + str(traj[0]) + " \t(aus Zeile 73)")
+            print("Koordinate zwischen Stemm- und Schwingphase: \t" + str(
+                traj[-1]) + " \t(aus Zeile 74)")  # dient zu Testzwecken -> zeigt Uebergang
             if ((self.coordPoints % 4) == 0) or ((self.coordPoints % 4) == 3):
                 for i in range(1, math.ceil(self.coordPoints / 4) + 2):
                     x = -self.moveDiameter / 2 + (i / (math.ceil(self.coordPoints / 4) + 1)) * (self.moveDiameter / 2)
-                    z = (-self.extremeZ / math.pow(self.moveDiameter, 2)) * math.pow(x, 2) + self.extremeZ
+                    z = (-self.extremeZ / math.pow(self.moveDiameter / 2, 2)) * math.pow(x, 2) + self.extremeZ
                     traj += [(x, 0.0, z, 1.0), ]
             elif (self.coordPoints % 4) == 1:
                 for i in range(1, math.ceil(self.coordPoints / 4)):
                     x = -self.moveDiameter / 2 + (i / (math.ceil(self.coordPoints / 4) - 1)) * (self.moveDiameter / 2)
-                    z = (-self.extremeZ / math.pow(self.moveDiameter, 2)) * math.pow(x, 2) + self.extremeZ
+                    z = (-self.extremeZ / math.pow(self.moveDiameter / 2, 2)) * math.pow(x, 2) + self.extremeZ
                     traj += [(x, 0.0, z, 1.0), ]
             elif (self.coordPoints % 4) == 2:
                 for i in range(1, math.ceil(self.coordPoints / 4) + 1):
                     x = -self.moveDiameter / 2 + (i / math.ceil(self.coordPoints / 4)) * (self.moveDiameter / 2)
-                    z = (-self.extremeZ / math.pow(self.moveDiameter, 2)) * math.pow(x, 2) + self.extremeZ
+                    z = (-self.extremeZ / math.pow(self.moveDiameter / 2, 2)) * math.pow(x, 2) + self.extremeZ
                     traj += [(x, 0.0, z, 1.0), ]
-            print("Koordinate am hoechsten Punkt: \t\t\t\t\t" + str(traj[-1]) + " (aus Zeile 85)")
+            print("Koordinate am hoechsten Punkt: \t\t\t\t\t" + str(traj[-1]) + " \t(aus Zeile 90)")
             for i in range(1, math.ceil(self.coordPoints / 4) + 1):
                 x = (i / math.ceil(self.coordPoints / 4)) * (self.moveDiameter / 2)
-                z = (-self.extremeZ / math.pow(self.moveDiameter, 2)) * math.pow(x, 2) + self.extremeZ
+                z = (-self.extremeZ / math.pow(self.moveDiameter / 2, 2)) * math.pow(x, 2) + self.extremeZ
                 traj += [(x, 0.0, z, 1.0), ]
+            print("Koordinate zwischen Schwing- und Stemmphase: \t" + str(traj[-1]) + " \t(aus Zeile 95)")
             for i in range(1, math.floor(self.coordPoints / 4)):
-                x = self.moveDiameter / 2 - math.floor(self.coordPoints / 4) * (self.moveDiameter / 2)
+                x = self.moveDiameter / 2 - (i / (math.floor(self.coordPoints / 4) - 1)) * (self.moveDiameter / 2)
                 traj += [(x, 0.0, 0.0, 1.0), ]
-            print("Laenge von traj: " + str(len(traj)) + ".\t Geforderte Koordinatenanzahl: " + str(self.coordPoints) + " (aus Zeile 93)")  # dient zu Testzwecken
+            del traj[-1]
+            print("Letzte Koordinate: \t\t\t\t\t\t\t\t" + str(traj[-1]) + " (aus Zeile 100)\n")
+            print("Laenge von traj: \t\t\t\t" + str(
+                len(traj)) + " (aus Zeile 101)\nGeforderte Koordinatenanzahl: \t" + str(
+                self.coordPoints) + " (aus Zeile 101)\n")  # dient zu Testzwecken
             return traj
         else:
             print("Fehler: Anzahl der Koordinaten liegt unter 4")
@@ -214,9 +221,7 @@ class Robot:
         #self.velocity = commands[1]
         self.cachedCommands = commands"""
         commands = self.host.lastPressed  # list[velocity(0.0 bis 1.0)],[degree(rad)]
-        if commands != 0:
-            commands = self.host.lastPressed  # konvertiere zu int Objekten "speed: 0.0 degree: 0.0"
-        elif self.cachedCommands == commands or commands == 0:  # keine neuen Kommandos
+        if self.cachedCommands == commands or commands == 0 or not type(float) == commands:  # keine neuen Kommandos oder ungültig
             return
         #  print(commands)
         self.cachedCommands = commands
@@ -226,7 +231,6 @@ class Robot:
                                   (math.sin(degree), math.cos(degree), 0, 0),
                                   (0, 0, 1, 0),
                                   (0, 0, 0, 1)])
-        print(type(rotationMatrix))
         rotatedVector = rotationMatrix.dot(vector)
         return rotatedVector
 
