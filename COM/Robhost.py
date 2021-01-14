@@ -23,11 +23,13 @@ class Host:
 	lastPressed = ""
 
 	def channel(self):
+		print("channel")
 		while True:
 			try:
 				self.lastPressed = msgpack.unpackb(self.socket.recv())
 				print(self.lastPressed)
 				if (self.lastPressed == "SYN"):
+					print("SYN")
 					self.socket.send(msgpack.packb("ACK"))
 
 			except KeyboardInterrupt:

@@ -6,7 +6,7 @@ import numpy as np
 from mincom import MinCom
 from HexaplotSender import HexaplotSender
 from LegDummy import LegDummy
-from COM.Host import Host
+from COM.Robhost import Host
 
 
 class Robot:
@@ -49,7 +49,7 @@ class Robot:
         self.trajBIndex = math.floor(len(self.traj)/2)  # Stemmungsanfangsindex
 
         # Roboter Parameter
-        self.velocity = 0.0  # Geschwindigkeit (0.0 0.5 1.0)
+        self.velocity = 1.0  # Geschwindigkeit (0.0 0.5 1.0)
         self.degree = 0  # Grad der Bewegung/Trajektorie in Radiant (für Bewegungsänderung)
 
         self.cachedCommands = []  # Kommandos cachen zur späteren Überprüfung (degree [0], velocity [1])
@@ -212,9 +212,10 @@ class Robot:
         #self.degree = commands[0]
         #self.velocity = commands[1]
         self.cachedCommands = commands"""
+        self.host.channel()
         commands = self.host.lastPressed  # list[velocity(0.0 bis 1.0)],[degree(rad)]
         if commands != 0:
-            commands = list(map(float, commands))  # konvertiere zu int Objekten
+            commands = list(map(float, commands))  # konvertiere zu int Objekten "speed: 0.0 degree: 0.0"
         elif self.cachedCommands == commands or commands == 0:  # keine neuen Kommandos
             return
         #  print(commands)
