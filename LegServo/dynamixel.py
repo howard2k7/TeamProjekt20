@@ -22,7 +22,7 @@ class Dynamixel:
     # Definition of private class attributes, accessible only within own class
     # ---------------------------------------------------------------------------
     # Define dynamixel constants
-    __DYNAMIXEL_PORT_NR = 1  # Index of dynamixel line in list
+    __DYNAMIXEL_PORT_NR = 5  # Index of dynamixel line in list
     __BAUDRATE = 1000000  # Baudrate of dynamixel serial line
     __TIME_OUT_DEFAULT = 2  # Default time out
     __DIRECT_ACTION = 3  # Direct action command

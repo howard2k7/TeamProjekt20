@@ -7,6 +7,7 @@ from mincom import MinCom
 from HexaplotSender import HexaplotSender
 from LegDummy import LegDummy
 from COM.Robhost import Host
+from LegServo.LegFF import Leg
 
 
 class Robot:
@@ -16,12 +17,16 @@ class Robot:
 
         self.legs = ()
 
+        """legs = (Leg(1, 1, 3, 5), Leg(2, 2, 4, 6),
+                Leg(3, 8, 10, 12), Leg(4, 14, 16, 18),
+                Leg(5, 13, 15, 17), Leg(6, 7, 9, 11))"""
+
         # Kommunikationsobjekt erzeugen
         self.host = Host()
 
         if self.testMode:
             # hexaplotter
-            #self.hs = HexaplotSender()
+            # self.hs = HexaplotSender()
             # Testkommunikationsobjekt erzeugen
             # self.mc = MinCom()
             # sechs Beinobjekte mit entsprechenden Joint IDs erzeugen
@@ -30,8 +35,9 @@ class Robot:
                     LegDummy(5, False, 13, 15, 17), LegDummy(6, False, 7, 9, 11))
             # leg(nummer int 1-6, bool True(real leg), int idAlpha, int idBeta, int idGamma)  -> siehe Klasse LegDummy
         else:
-            ...
-            # TODO echte legs zuweisen
+            legs = (Leg(1, 1, 3, 5), Leg(2, 2, 4, 6),
+                    Leg(3, 8, 10, 12), Leg(4, 14, 16, 18),
+                    Leg(5, 13, 15, 17), Leg(6, 7, 9, 11))
 
         self.extremeZ = 0.03  # Extrempunkt maxZ
         self.moveDiameter = 0.25  # Durchmesser vom Arbeitsbereich nach X
@@ -47,13 +53,13 @@ class Robot:
         self.trajBIndex = math.floor(len(self.traj)/2)  # Stemmungsanfangsindex
 
         # Roboter Parameter
-        self.velocity = 1.0  # Geschwindigkeit (0.0 0.5 1.0)
+        self.velocity = 0.0  # Geschwindigkeit (0.0 0.5 1.0)
         self.degree = 0  # Grad der Bewegung/Trajektorie in Radiant (für Bewegungsänderung)
 
         self.cachedCommands = []  # Kommandos cachen zur späteren Überprüfung (degree [0], velocity [1])
 
         # sechs Startpunkte für Beine erzeugen
-        self.legsStartPos = self.createLegStartPos()
+        # self.legsStartPos = self.createLegStartPos()
 
         # Trajektorienliste mit Trajektorienpunkten erzeugen
 
@@ -108,7 +114,7 @@ class Robot:
 
     def createLegStartPos(self):  # evt. Liste direkt erstellen mit gemessenen Werten
         # Position in Metern!
-        xB = 0.000  # TODO Offset vom Hauptkörper des Roboters in x Richtung
+        xB = 0.033  # TODO Offset vom Hauptkörper des Roboters in x Richtung
         yB = 0.000  # TODO Offset vom Hauptkörper des Roboters in y Richtung
         startZ = 0.100
         allLegPos = ((1.000,  -1.000, -1.000),
@@ -187,15 +193,15 @@ class Robot:
                 ...
                 #self.hs.send_points(allCurrentPositions)  # sende an plotter
             elif self.legs[0][1] and self.legs[1][1] and self.legs[2][1] and self.legs[3][1] and self.legs[4][1] and self.legs[5][1]:
-                # while not posReached:
-                # self.legs[0].setFootPosPoints(allCurrentPositions[0])  # real bei True
-                # self.legs[1].setFootPosPoints(allCurrentPositions[1])
-                # self.legs[2].setFootPosPoints(allCurrentPositions[2])  # Leg Gruppe hat Methode setFoot..
-                # self.legs[3].setFootPosPoints(allCurrentPositions[3])
-                # self.legs[4].setFootPosPoints(allCurrentPositions[4])
-                # self.legs[5].setFootPosPoints(allCurrentPositions[5])
+                 while self.legs[0].servoready == True and self.legs[1].servoready == True and self.legs[2].servoready == True and self.legs[3].servoready == True and self.legs[4].servoready == True and self.legs[5].servoready == True:
+                    self.legs[0].setFootPosPoints(allCurrentPositions[0])  # real bei True
+                    self.legs[1].setFootPosPoints(allCurrentPositions[1])
+                    self.legs[2].setFootPosPoints(allCurrentPositions[2])  # Leg Gruppe hat Methode setFoot..
+                    self.legs[3].setFootPosPoints(allCurrentPositions[3])
+                    self.legs[4].setFootPosPoints(allCurrentPositions[4])
+                    self.legs[5].setFootPosPoints(allCurrentPositions[5])
                 # if allLegs posReached: posReached = True
-                pass
+                 pass
             else:
                 print("FEHLER: Beine sind in unterschiedlichen Zustaenden!!! -> return")
                 return
@@ -236,6 +242,6 @@ class Robot:
 
 
 if __name__ == "__main__":
-    rb = Robot(True)
+    rb = Robot(False)
     rb.iterate()
 
