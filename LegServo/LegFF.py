@@ -1,7 +1,7 @@
 import math
 import time
 import numpy as np
-from jointdrive import JointDrive
+from LegServo.jointdrive import JointDrive
 
 
 

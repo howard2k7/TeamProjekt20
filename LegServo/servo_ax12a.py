@@ -1,6 +1,6 @@
 import serial
-import serialPorts
-from dynamixel import *
+import LegServo.serialPorts
+from LegServo.dynamixel import *
 import time
 
 

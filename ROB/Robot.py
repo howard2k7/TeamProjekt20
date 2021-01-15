@@ -21,6 +21,13 @@ class Robot:
                 Leg(3, 8, 10, 12), Leg(4, 14, 16, 18),
                 Leg(5, 13, 15, 17), Leg(6, 7, 9, 11))"""
 
+        self.startPositions = ((0,0,0),
+                               (0, 0, 0),
+                               (0, 0, 0),
+                               (0, 0, 0),
+                               (0, 0, 0),
+                               (0, 0, 0))
+
         # Kommunikationsobjekt erzeugen
         self.host = Host()
 
@@ -35,7 +42,7 @@ class Robot:
                     LegDummy(5, False, 13, 15, 17), LegDummy(6, False, 7, 9, 11))
             # leg(nummer int 1-6, bool True(real leg), int idAlpha, int idBeta, int idGamma)  -> siehe Klasse LegDummy
         else:
-            legs = (Leg(1, 1, 3, 5), Leg(2, 2, 4, 6),
+            self.legs = (Leg(1, 1, 3, 5), Leg(2, 2, 4, 6),
                     Leg(3, 8, 10, 12), Leg(4, 14, 16, 18),
                     Leg(5, 13, 15, 17), Leg(6, 7, 9, 11))
 
@@ -57,6 +64,8 @@ class Robot:
         self.degree = 0  # Grad der Bewegung/Trajektorie in Radiant (für Bewegungsänderung)
 
         self.cachedCommands = []  # Kommandos cachen zur späteren Überprüfung (degree [0], velocity [1])
+
+        self.moveToDefaultPos()
 
         # sechs Startpunkte für Beine erzeugen
         # self.legsStartPos = self.createLegStartPos()
@@ -102,7 +111,7 @@ class Robot:
             for i in range(1, math.floor(self.coordPoints / 4)):
                 x = self.moveDiameter / 2 - (i / (math.floor(self.coordPoints / 4) - 1)) * (self.moveDiameter / 2)
                 traj += [(x, 0.0, 0.0, 1.0), ]
-            del traj[-1]
+            #del traj[-1]
             print("Letzte Koordinate: \t\t\t\t\t\t\t\t" + str(traj[-1]) + " (aus Zeile 100)\n")
             print("Laenge von traj: \t\t\t\t" + str(
                 len(traj)) + " (aus Zeile 101)\nGeforderte Koordinatenanzahl: \t" + str(
@@ -111,6 +120,11 @@ class Robot:
         else:
             print("Fehler: Anzahl der Koordinaten liegt unter 4")
             return
+
+    def moveToDefaultPos(self):
+        for i, leg in enumerate(self.legs):
+            leg.setFootPosPoints(self.traj[0])
+
 
     def createLegStartPos(self):  # evt. Liste direkt erstellen mit gemessenen Werten
         # Position in Metern!
@@ -178,12 +192,12 @@ class Robot:
             # Schwingtrajektorienpunkt an die Orte
             # der drei schwingenden Beine verschieben
             allCurrentPositions = []
-            for i, val in enumerate(self.legs):  # 6 neue Koordinaten in Liste speichern
+            for i, val in enumerate(self.startPositions):  # 6 neue Koordinaten in Liste speichern
                 if (i % 2) == 0:
-                    aPosition = tuple(np.add(val.getFootPosition(), legATraj))
+                    aPosition = tuple(np.add(val[i], legATraj))
                     allCurrentPositions.append(aPosition)
                 else:
-                    bPosition = tuple(np.add(val.getFootPosition(), legBTraj))
+                    bPosition = tuple(np.add(val[i], legBTraj))
                     allCurrentPositions.append(bPosition)
 
             # Punkte zur Ausführung an die
@@ -192,8 +206,8 @@ class Robot:
             if self.testMode:
                 ...
                 #self.hs.send_points(allCurrentPositions)  # sende an plotter
-            elif self.legs[0][1] and self.legs[1][1] and self.legs[2][1] and self.legs[3][1] and self.legs[4][1] and self.legs[5][1]:
-                 while self.legs[0].servoready == True and self.legs[1].servoready == True and self.legs[2].servoready == True and self.legs[3].servoready == True and self.legs[4].servoready == True and self.legs[5].servoready == True:
+            #elif self.legs[0][1] and self.legs[1][1] and self.legs[2][1] and self.legs[3][1] and self.legs[4][1] and self.legs[5][1]:
+            elif self.testMode == False:
                     self.legs[0].setFootPosPoints(allCurrentPositions[0])  # real bei True
                     self.legs[1].setFootPosPoints(allCurrentPositions[1])
                     self.legs[2].setFootPosPoints(allCurrentPositions[2])  # Leg Gruppe hat Methode setFoot..
@@ -201,7 +215,7 @@ class Robot:
                     self.legs[4].setFootPosPoints(allCurrentPositions[4])
                     self.legs[5].setFootPosPoints(allCurrentPositions[5])
                 # if allLegs posReached: posReached = True
-                 pass
+                 #pass
             else:
                 print("FEHLER: Beine sind in unterschiedlichen Zustaenden!!! -> return")
                 return

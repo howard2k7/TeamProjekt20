@@ -1,5 +1,5 @@
 import math
-from servo_ax12a import *
+from LegServo.servo_ax12a import *
 
 
 # Class definition of ax12a-controller class, defines interface to the robot

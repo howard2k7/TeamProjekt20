@@ -1,8 +1,8 @@
 from tkinter import *
 import threading
-import verbindungsTest
+import COM.verbindungsTest as verbindungsTest
 import time
-import gamepad as gp
+import COM.gamepad as gp
 import re
 
 class mainGui:
