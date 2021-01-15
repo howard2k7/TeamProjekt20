@@ -4,7 +4,6 @@ import numpy as np
 from LegServo.jointdrive import JointDrive
 
 
-
 class Leg:
     def __init__(self, legNumber, alphaID, betaID, gammaID):  # Konstruktor
 

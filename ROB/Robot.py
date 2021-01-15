@@ -21,7 +21,7 @@ class Robot:
                 Leg(3, 8, 10, 12), Leg(4, 14, 16, 18),
                 Leg(5, 13, 15, 17), Leg(6, 7, 9, 11))"""
 
-        self.startPositions = ((0,0,0),
+        self.startPositions = ((0, 0, 0),
                                (0, 0, 0),
                                (0, 0, 0),
                                (0, 0, 0),
@@ -43,8 +43,8 @@ class Robot:
             # leg(nummer int 1-6, bool True(real leg), int idAlpha, int idBeta, int idGamma)  -> siehe Klasse LegDummy
         else:
             self.legs = (Leg(1, 1, 3, 5), Leg(2, 2, 4, 6),
-                    Leg(3, 8, 10, 12), Leg(4, 14, 16, 18),
-                    Leg(5, 13, 15, 17), Leg(6, 7, 9, 11))
+                         Leg(3, 8, 10, 12), Leg(4, 14, 16, 18),
+                         Leg(5, 13, 15, 17), Leg(6, 7, 9, 11))
 
         self.extremeZ = 0.03  # Extrempunkt maxZ
         self.moveDiameter = 0.25  # Durchmesser vom Arbeitsbereich nach X
@@ -124,7 +124,6 @@ class Robot:
     def moveToDefaultPos(self):
         for i, leg in enumerate(self.legs):
             leg.setFootPosPoints(self.traj[0])
-
 
     def createLegStartPos(self):  # evt. Liste direkt erstellen mit gemessenen Werten
         # Position in Metern!
@@ -207,13 +206,13 @@ class Robot:
                 ...
                 #self.hs.send_points(allCurrentPositions)  # sende an plotter
             #elif self.legs[0][1] and self.legs[1][1] and self.legs[2][1] and self.legs[3][1] and self.legs[4][1] and self.legs[5][1]:
-            elif self.testMode == False:
-                    self.legs[0].setFootPosPoints(allCurrentPositions[0])  # real bei True
-                    self.legs[1].setFootPosPoints(allCurrentPositions[1])
-                    self.legs[2].setFootPosPoints(allCurrentPositions[2])  # Leg Gruppe hat Methode setFoot..
-                    self.legs[3].setFootPosPoints(allCurrentPositions[3])
-                    self.legs[4].setFootPosPoints(allCurrentPositions[4])
-                    self.legs[5].setFootPosPoints(allCurrentPositions[5])
+            elif not self.testMode:
+                self.legs[0].setFootPosPoints(allCurrentPositions[0])  # real bei True
+                self.legs[1].setFootPosPoints(allCurrentPositions[1])
+                self.legs[2].setFootPosPoints(allCurrentPositions[2])  # Leg Gruppe hat Methode setFoot..
+                self.legs[3].setFootPosPoints(allCurrentPositions[3])
+                self.legs[4].setFootPosPoints(allCurrentPositions[4])
+                self.legs[5].setFootPosPoints(allCurrentPositions[5])
                 # if allLegs posReached: posReached = True
                  #pass
             else:
