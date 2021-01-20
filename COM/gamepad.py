@@ -201,7 +201,7 @@ class Gamepad:
 			if (self.speed > 0.0001) or (self.angle):
 
 
-				self.socket.send(msgpack.packb([self.speed , self.angle * (math.pi) / 180, 1.0]))
+				self.socket.send(msgpack.packb([self.mother.pace * self.speed , self.angle * (math.pi) / 180, 1.0]))
 				self.mother.write2("Speed: " + str(self.speed) + " Angle: " + str(self.angle))
 				#print("Speed " + str(self.speed) + " Winkel: " + str(self.angle))
 
