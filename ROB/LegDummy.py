@@ -1,14 +1,14 @@
 class LegDummy:
 
-    def __init__(self, id, legPosition, id1, id2, id3):
+    def __init__(self, id, id1, id2, id3, legPosition):
         self.id = id
-        self.legPosition = legPosition
         self.id1 = id1
         self.id2 = id2
         self.id3 = id3
+        self.legPosition = legPosition
 
-    def getFootPosition(self):
+    def getlastPosition(self):
         return self.legPosition
 
-    def setFootPos(self, pos):
+    def setFootPosPoints(self, pos):
         self.legPosition = pos

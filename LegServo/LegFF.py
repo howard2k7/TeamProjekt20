@@ -1,7 +1,10 @@
 import math
 import time
 import numpy as np
-from LegServo.jointdrive import JointDrive
+try:
+    from LegServo.jointdrive import JointDrive
+except IndexError:
+    pass  # Motoren verbinden nicht
 
 
 class Leg:
