@@ -7,6 +7,7 @@ import re
 
 class mainGui:
     def __init__(self, master):
+        self.pace = 0.0
         self.master = master
         master.geometry("1500x700")
         master.config(bg="white")
@@ -182,17 +183,15 @@ class mainGui:
 
 
     def paceSelect(self):
-        pace = 0
-        self.write("Befehl: " + self.selectedPace.get())
+
         if self.selectedPace.get() == "Geschwindigkeit 1":
-            pace = 1
+            self.pace = 1.0
         elif self.selectedPace.get() == "Geschwindigkeit 2":
-            pace = 2
+            self.pace = .666
         elif self.selectedPace.get() == "Geschwindigkeit 3":
-            pace = 3
+            self.pace = .333
         # call paceSelect method with pace
-        help = verbindungsTest.geschwStufe(pace)
-        self.write(str(help))
+        self.write("Setze Geschwindigkeit auf: " + str(self.pace) + " !")
 
     def write(self, txt):
         if txt == "BLANK":

@@ -40,11 +40,13 @@ class Host:
 			except KeyboardInterrupt:
 				break
 
-	def __init__(self):
+	def __init__(self, protokoll = "tcp", port="5555"):
 
+		ip = protokoll + "://*:" + port
 		self.context = zmq.Context()
 		self.socket = self.context.socket(zmq.PAIR)
-		self.socket.bind("tcp://*:5555")
+		#self.socket.bind("tcp://*:5555")
+		self.socket.bind(ip)
 
 		self.control = Thread(target=self.channel, args=())
 		self.control.start()
