@@ -1,10 +1,9 @@
 import math
 import time
 import numpy as np
-try:
-    from LegServo.jointdrive import JointDrive
-except IndexError:
-    pass  # Motoren verbinden nicht
+
+from LegServo.jointdrive import JointDrive
+
 
 
 class Leg:
@@ -44,16 +43,15 @@ class Leg:
         print("LT: ", self.lt, self.ltSquare)
 
         self.jointDriveBroadcast = JointDrive(id=254)
-        self.jointDriveAlpha = JointDrive(id=alphaID, aOffset=0.523599, aMax=6, aMin=1)
-        self.jointDriveBeta = JointDrive(id=betaID, aOffset=0.523599, aMax=6, aMin=1)
-        self.jointDriveGamma = JointDrive(id=gammaID, aOffset=0.523599, ccw=True, aMax=6, aMin=1)
+        self.jointDriveAlpha = JointDrive(id=alphaID, aOffset= 0)
+        self.jointDriveBeta = JointDrive(id=betaID, aOffset= 0.34, ccw = True)
+        self.jointDriveGamma = JointDrive(id=gammaID, aOffset= 1.09)
         self.oldAngles = [self.jointDriveAlpha.getCurrentJointAngle(), self.jointDriveBeta.getCurrentJointAngle(),
                           self.jointDriveGamma.getCurrentJointAngle()]
-        self.setJointAngles(0, 0, 0)
+        self.setFootPosPoints([0.196,-0.032, -0.151,1])
         time.sleep(2)
 
-    def invKinAlphaJoint(self, pos=[0, 0, 0,
-                                    1]):  # Bestimmung der Gelenkwinkel basierend auf der Position des Fußpunktes im Alphakoordinatensystem
+    def invKinAlphaJoint(self, pos=[0, 0, 0,1]):  # Bestimmung der Gelenkwinkel basierend auf der Position des Fußpunktes im Alphakoordinatensystem
 
         try:
             alpha = math.atan2(pos[1], pos[0])
@@ -97,7 +95,7 @@ class Leg:
 
             T03LastColumn = np.array([
                 [math.cos(alpha) * (self.lt * math.cos(beta + gamma) + self.lf * math.cos(beta) + self.lc)],
-                [math.sin(alpha) * (self.lt * math.cos(beta + gamma) + self.lf * math.cos(beta) + self.lc)],
+                [math.sin(alpha) * (self.lt * math.cos(beta + gamma) + ( self.lf * math.cos(beta) - self.legDistances[4]) + self.lc)], # NEU: - self.legDistances[4]!!!!!!!!!
                 [self.lt * math.sin(beta + gamma) + self.lf * math.sin(beta)],
                 [1]])
 
@@ -145,9 +143,9 @@ class Leg:
 
         footPositionAlpha = self.forCalcFootPoint(alpha, beta, gamma)  # Alphakoordinatensystem
         fPa = footPositionAlpha.copy()
-        footPositionBasis = self.calcRotation_Z_Axis_OffsetBasisKoord(
-            fPa)  # Berechnung der Fußposition in das Basiskoordinatensystem
-        self.lastPosition = footPositionBasis
+        footPositionBasis = self.calcRotation_Z_Axis_OffsetBasisKoord( fPa)  # Berechnung der Fußposition in das Basiskoordinatensystem
+        self.lastPosition = footPositionBasis.copy()
+        print(self.lastPosition)
         self.setFootPosAngle(footPositionAlpha, footPositionBasis)  # Roboterbasiskoordinatensystem
 
     def calcRotation_Z_Axis_OffsetAlphaKoord(self, pos=[0.0, 0.0, 0.0,
@@ -283,48 +281,51 @@ class Leg:
 
     def setFootPosAngle(self, footPosAlpha=[0.0, 0.0, 0.0, 1], footPosBasis=[0.0, 0.0, 0.0, 1], speed=0):
 
-        newAngles1 = self.invKinAlphaJoint(footPosAlpha)
-        newAngles = [x + math.pi for x in newAngles1]
+
+        newAngles = self.invKinAlphaJoint(footPosAlpha)
         angleSpeed = self.calcServoSpeed(newAngles, self.oldAngles, 254)
-        print(angleSpeed)
-        print(newAngles)
+        print(self.lastPosition)
         self.jointDriveAlpha.setDesiredAngleSpeed(newAngles[0], speed=angleSpeed[0], trigger=True)
         self.jointDriveBeta.setDesiredAngleSpeed(newAngles[1], speed=angleSpeed[1], trigger=True)
         self.jointDriveGamma.setDesiredAngleSpeed(newAngles[2], speed=angleSpeed[2], trigger=True)
         self.jointDriveBroadcast.action();
 
         self.oldAngles = newAngles.copy()
+        print(self.lastPosition)
 
     def setFootPosPoints(self, footPos=[0.0, 0.0, 0.0, 1]):
 
         footPosBasis = footPos.copy()
-        self.lastPosition = footPosBasis
-        newAngles1 = self.invKinAlphaJoint(self.calcRotation_Z_Axis_OffsetAlphaKoord(footPosBasis))
-        newAngles = [x + math.pi for x in newAngles1]
+        self.lastPosition = footPosBasis.copy()
+        print(self.lastPosition)
+        newAngles = self.invKinAlphaJoint(self.calcRotation_Z_Axis_OffsetAlphaKoord(footPosBasis))
 
         angleSpeed = self.calcServoSpeed(newAngles, self.oldAngles, 254)
-        print(angleSpeed)
-        print(angleSpeed)
+        #print(angleSpeed)
+        #print(newAngles)
         self.servofinished = False
         self.jointDriveAlpha.setDesiredAngleSpeed(newAngles[0], speed=angleSpeed[0], trigger=True)
         self.jointDriveBeta.setDesiredAngleSpeed(newAngles[1], speed=angleSpeed[1], trigger=True)
         self.jointDriveGamma.setDesiredAngleSpeed(newAngles[2], speed=angleSpeed[2], trigger=True)
         self.jointDriveBroadcast.action();
-        #time.sleep(0.2)
+        print(self.lastPosition)
 
         self.oldAngles = newAngles.copy()
 
     # Reihenfolge der Winkel beachten! Differenz von neuen und alten Winkeln übergeben
     def calcServoSpeed(self, angles=[0.0, 0.0, 0.0], lastAngles=[0.0, 0.0, 0.0], speed=0):
 
-        diffAngles = [abs(angles[0] - lastAngles[0]), abs(angles[1] - lastAngles[1]), abs(angles[2] - lastAngles[2])]
-        largestAngle = max(diffAngles)
+        if angles == lastAngles:
+            return [0,0,0]
+        else:
+            diffAngles = [abs(angles[0] - lastAngles[0]), abs(angles[1] - lastAngles[1]), abs(angles[2] - lastAngles[2])]
+            largestAngle = max(diffAngles)
 
-        alphaSpeed = (diffAngles[0] / largestAngle) * speed
-        betaSpeed = (diffAngles[1] / largestAngle) * speed
-        gammaSpeed = (diffAngles[2] / largestAngle) * speed
+            alphaSpeed = (diffAngles[0] / largestAngle) * speed
+            betaSpeed = (diffAngles[1] / largestAngle) * speed
+            gammaSpeed = (diffAngles[2] / largestAngle) * speed
 
-        return [alphaSpeed, betaSpeed, gammaSpeed]
+            return [alphaSpeed, betaSpeed, gammaSpeed]
 
     def getlastPosition(self):
         return self.lastPosition
@@ -332,7 +333,7 @@ class Leg:
 
 if __name__ == "__main__":
 
-    leg = Leg(3, 3, 14, 15)
+    leg = Leg(1, 3, 14, 15)
     '''
     leg1 = Leg(1, 1, 3, 5)
     leg2 = Leg(2, 2, 4, 6)
@@ -342,18 +343,15 @@ if __name__ == "__main__":
     leg6 = Leg(6, 7, 9, 11)
     '''
     while True:
-        # Beinbewegung Bein 3
+
+        # Beinbewegung Bein 1
         print("Punkt 1")
-        leg.setFootPosPoints([0.0, 0.2, 0.07, 1])
+        leg.setFootPosPoints([0.196, -0.032, -0.07, 1])
         # time.sleep(2)
         print("Punkt 2")
-        leg.setFootPosPoints([-0.09, 0.15, -0.1, 1])
+        leg.setFootPosPoints([0.075, -0.153, -0.151, 1])
         # time.sleep(2)
-        print("Punkt 3")
-        leg.setFootPosPoints([0.0, 0.15, -0.1, 1])
-        # time.sleep(2)
-        print("Punkt 4")
-        leg.setFootPosPoints([0.06, 0.15, -0.1, 1])
-        # time.sleep(2)
+        leg.setFootPosPoints([0.196, -0.032, -0.151, 1])
+
 
 
