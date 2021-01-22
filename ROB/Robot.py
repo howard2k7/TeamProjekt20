@@ -42,7 +42,7 @@ class Robot:
             self.legs = [Leg(1, 1, 3, 5), Leg(2, 2, 4, 6),
                          Leg(3, 8, 10, 12), Leg(4, 14, 16, 18),
                          Leg(5, 13, 15, 17), Leg(6, 7, 9, 11)]
-            #self.legs = [Leg(1, 1, 3, 5)]
+            # self.legs = [Leg(1, 1, 3, 5)]
 
         self.cycleTime = 0.05  # Durchlaufzeit einer Iteration in Sekunden
         self.oneStepTime = 1.0  # Durchlaufzeit einer ganzen Bewegung durch die Trajektorienliste
@@ -134,13 +134,13 @@ class Robot:
             # wenn neue Kommandos dann ggf. (Richtungsänderung, Höhenverstellung, Geschwindigkeitsreduzierung/erhöhung)
             # -> Hoehenverstellung ueber self.extremeZ
             # Trajektorie aendern wenn ein Bein in der Startposition
-            if self.velocity == 0.0:  # Breche Iterationsdurchlauf ab, wenn keine Geschwindigkeit
-                print("Roboter steht!")
-                continue
 
             if self.cachedCommands:
                 if self.velocity != self.cachedCommands[0]:
                     self.velocity = self.cachedCommands[0]
+                    if self.velocity == 0.0:  # Breche Iterationsdurchlauf ab, wenn keine Geschwindigkeit
+                        #  print("Roboter steht!")
+                        continue
                     print("Velocity: " + str(self.velocity))
                 if Robot.moveZMax != (self.cachedCommands[2] * Robot.moveZMax):
                     self.currentZ = self.cachedCommands[2] * self.moveZMax
@@ -158,6 +158,8 @@ class Robot:
                         # np.round(np.array,digits) falls gerundet werden soll, sonst raw
                         self.currentTraj[i] = copy.deepcopy(tmpTraj[i])  # "1" bleibt im Vektor
                         #  print("Trajektorie: " + str(self.traj[i][:-1]))  # zeige Traj. ohne "1"
+            else:  # Keine Kommandos. Warte auf Kommandos...
+                continue
 
             # Überprüfe ob trajIndices außerhalb von TrajListe, sonst auf -1 setzen
             if self.trajAIndex + 1 > len(self.traj) - 1:
@@ -207,20 +209,15 @@ class Robot:
 
     def getNewCommands(self):  # erhalte neue Kommandos
         if self.testMode:
+            #  print("Trying to get new Commands")
             commands = self.mc.getData()
-            # Überprüfe, ob neue Kommandos vorhanden
-            if commands != 0:
-                commands = list(map(float, self.mc.getData()))  # konvertiere zu int Objekten
-            elif self.cachedCommands == commands or commands == 0:  # keine neuen Kommandos
-                return
         else:
             commands = self.host.lastPressed  # list[velocity(0.0 bis 1.0)],[degree(rad)],[maxZ(0.0 bis 1.0)]
-
-        if self.cachedCommands == commands or commands == 0 or not type(
-                float) == commands:  # keine neuen Kommandos oder ungültig
+        #print(commands)
+        if self.cachedCommands == commands or commands == 0 or (any(isinstance(x, str) for x in commands)):  # keine neuen Kommandos oder ungültig
             return
-        # print(commands)
         self.cachedCommands = commands
+        print(commands)
 
     def createRotatedVector(self, vector, degree):  # erstellt rotierten Vektor um z Achse um Grad degree
         rotationMatrix = np.array([(math.cos(degree), -math.sin(degree), 0, 0),
@@ -232,6 +229,6 @@ class Robot:
 
 
 if __name__ == "__main__":
-    rb = Robot(True)
+    rb = Robot(False)
     rb.iterate()
 

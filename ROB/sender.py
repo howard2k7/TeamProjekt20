@@ -1,3 +1,5 @@
+import math
+
 import zmq
 import msgpack
 
@@ -9,7 +11,7 @@ socket = context.socket(zmq.PAIR)
 socket.connect("tcp://127.0.0.1:"+__PORT)
 
 while True:
-    degreeInput = input("Winkel angeben: ")
     velocityInput = input("Geschwindigkeit angeben(0 bis 1): ")
+    degreeInput = input("Winkel angeben: ")
     heightInput = input("Höhe angeben(0 bis 1): ")
-    socket.send(msgpack.packb([degreeInput, velocityInput, heightInput]))
+    socket.send(msgpack.packb([float(velocityInput), float(degreeInput) * (math.pi) / 180, float(heightInput)]))
