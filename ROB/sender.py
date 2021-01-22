@@ -11,4 +11,5 @@ socket.connect("tcp://127.0.0.1:"+__PORT)
 while True:
     degreeInput = input("Winkel angeben: ")
     velocityInput = input("Geschwindigkeit angeben(0 bis 1): ")
-    socket.send(msgpack.packb([degreeInput, velocityInput]))
+    heightInput = input("Höhe angeben(0 bis 1): ")
+    socket.send(msgpack.packb([degreeInput, velocityInput, heightInput]))

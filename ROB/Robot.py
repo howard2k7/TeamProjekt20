@@ -27,10 +27,10 @@ class Robot:
             # Testkommunikationsobjekt erzeugen
             self.mc = MinCom()
             # sechs Beinobjekte mit entsprechenden Joint IDs erzeugen
-            """self.legs = [LegDummy(1, 1, 3, 5, [1.0, -1.0, 0.0, 1.0]), LegDummy(2, 2, 4, 6, [1.0, 1.0, 0.0, 1.0]),
+            self.legs = [LegDummy(1, 1, 3, 5, [1.0, -1.0, 0.0, 1.0]), LegDummy(2, 2, 4, 6, [1.0, 1.0, 0.0, 1.0]),
                          LegDummy(3, 8, 10, 12, [0.0, 1.3, 0.0, 1.0]), LegDummy(4, 14, 16, 18, [-1.0, 1.0, 0.0, 1.0]),
-                         LegDummy(5, 13, 15, 17, [-1.0, -1.0, 0.0, 1.0]), LegDummy(6, 7, 9, 11, [0.0, -1.0, 0.0, 1.0])]"""
-            self.legs = [LegDummy(1, 1, 3, 5, [1.0, 0.0, 0.0, 1.0])]
+                         LegDummy(5, 13, 15, 17, [-1.0, -1.0, 0.0, 1.0]), LegDummy(6, 7, 9, 11, [0.0, -1.3, 0.0, 1.0])]
+            #  self.legs = [LegDummy(1, 1, 3, 5, [1.0, 0.0, 0.0, 1.0])]
             # leg(nummer int 1-6, bool True(real leg), int idAlpha, int idBeta, int idGamma)  -> siehe Klasse LegDummy
         else:
             # Kommunikationsobjekt erzeugen
@@ -39,10 +39,10 @@ class Robot:
             else:
                 self.host = Host()
             # sechs reale Beinobjekte mit entsprechenden Joint IDs erzeugen
-            """self.legs = [Leg(1, 1, 3, 5), Leg(2, 2, 4, 6),
+            self.legs = [Leg(1, 1, 3, 5), Leg(2, 2, 4, 6),
                          Leg(3, 8, 10, 12), Leg(4, 14, 16, 18),
-                         Leg(5, 13, 15, 17), Leg(6, 7, 9, 11)]"""
-            self.legs = [Leg(1, 1, 3, 5)]
+                         Leg(5, 13, 15, 17), Leg(6, 7, 9, 11)]
+            #self.legs = [Leg(1, 1, 3, 5)]
 
         self.cycleTime = 0.05  # Durchlaufzeit einer Iteration in Sekunden
         self.oneStepTime = 1.0  # Durchlaufzeit einer ganzen Bewegung durch die Trajektorienliste
@@ -58,12 +58,17 @@ class Robot:
         self.cachedCommands = []  # Kommandos cachen zur späteren Überprüfung (degree [0], velocity [1], maxZ [2])
         self.workspacePositions = self.getWorkspacePositions()
 
+        if self.testMode:
+            self.hs.send_points(self.getWorkspacePositions())
+            time.sleep(2)
+
+        time.sleep(1)
         # Setze Beine in die Anfangsposition (Stemmungsposition, Schwingungsposition)
         self.moveLegsToStartPosition()
 
         # Trajektorienliste mit Trajektorienpunkten erzeugen
 
-        self.traj = self.createTraj(Robot.moveZMax)
+        self.traj = self.createTraj(Robot.moveZMax)  # nicht veränderbar
         self.currentTraj = self.traj
         print(self.traj)
         print("Trajektorienlänge: " + str(len(self.traj)))
@@ -83,6 +88,7 @@ class Robot:
         return workspacePos
 
     def moveLegsToStartPosition(self):
+        newPos = []
         for i in range(len(self.legs)):
             tmp = copy.copy(self.workspacePositions[i])
             if (i % 2) == 0:  # [0, 0, 0, 1]
@@ -90,6 +96,10 @@ class Robot:
             else:
                 tmp[0] -= (Robot.moveXMax / 2)
             self.legs[i].setFootPosPoints(tmp)
+            newPos.append(tmp)
+        if self.testMode:
+            self.hs.send_points(newPos)
+
 
     def createTraj(self, maxZ):
         trajectory = []
@@ -117,21 +127,21 @@ class Robot:
         return trajectory
 
     def iterate(self):
-        while 1:
+        while True:
             tStart = time.perf_counter()
 
             self.getNewCommands()  # Kommunikationsobjekt abfragen
             # wenn neue Kommandos dann ggf. (Richtungsänderung, Höhenverstellung, Geschwindigkeitsreduzierung/erhöhung)
             # -> Hoehenverstellung ueber self.extremeZ
             # Trajektorie aendern wenn ein Bein in der Startposition
+            if self.velocity == 0.0:  # Breche Iterationsdurchlauf ab, wenn keine Geschwindigkeit
+                print("Roboter steht!")
+                continue
 
             if self.cachedCommands:
                 if self.velocity != self.cachedCommands[0]:
                     self.velocity = self.cachedCommands[0]
                     print("Velocity: " + str(self.velocity))
-                    if self.velocity == 0.0:  # Breche Iterationsdurchlauf ab, wenn keine Geschwindigkeit
-                        print("Roboter steht!")
-                        return
                 if Robot.moveZMax != (self.cachedCommands[2] * Robot.moveZMax):
                     self.currentZ = self.cachedCommands[2] * self.moveZMax
                     self.createTraj(self.currentZ)
@@ -222,6 +232,6 @@ class Robot:
 
 
 if __name__ == "__main__":
-    rb = Robot(False)
+    rb = Robot(True)
     rb.iterate()
 
