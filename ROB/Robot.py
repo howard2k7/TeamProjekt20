@@ -8,7 +8,7 @@ from mincom import MinCom
 from HexaplotSender import HexaplotSender
 from LegDummy import LegDummy
 from COM.Robhost import Host
-from LegServo.LegFF import Leg
+#from LegServo.LegFF import Leg
 
 
 class Robot:
@@ -52,7 +52,7 @@ class Robot:
         # Roboter veränderbare Parameter
         self.velocity = 0.0  # Geschwindigkeit (0.0 0.5 1.0)
         self.degree = 0  # Grad der Bewegung/Trajektorie in Radiant (für Bewegungsänderung)
-        self.currentZ = 0
+        self.currentZ = Robot.moveZMax
         # self.currentX = 0
 
         self.cachedCommands = []  # Kommandos cachen zur späteren Überprüfung (degree [0], velocity [1], maxZ [2])
@@ -66,14 +66,12 @@ class Robot:
         # Setze Beine in die Anfangsposition (Stemmungsposition, Schwingungsposition)
         self.moveLegsToStartPosition()
 
+        self.middleXZIndex = 0
         # Trajektorienliste mit Trajektorienpunkten erzeugen
-
         self.traj = self.createTraj(Robot.moveZMax)  # nicht veränderbar
-        self.currentTraj = self.traj
+        self.currentTraj = copy.copy(self.traj)
         print(self.traj)
         print("Trajektorienlänge: " + str(len(self.traj)))
-
-        self.middleXZIndex = 0
 
         self.trajAIndex = -1  # Schwingungsanfangsindex
         self.trajBIndex = math.floor(len(self.traj)/2) - 1  # Stemmungsanfangsindex
@@ -108,7 +106,8 @@ class Robot:
         xPoints = int(self.coordPoints/2) + 1
         xzPoints = int(self.coordPoints/2) - 1
         self.middleXZIndex = math.ceil(xzPoints / 2)
-        print(self.middleXZIndex)
+        # print(self.middleXZIndex)
+
         # xPoints = 5
         # xzPoints = 3
 
@@ -138,15 +137,15 @@ class Robot:
             if self.cachedCommands:
                 if self.velocity != self.cachedCommands[0]:
                     self.velocity = self.cachedCommands[0]
-                    if self.velocity == 0.0:  # Breche Iterationsdurchlauf ab, wenn keine Geschwindigkeit
-                        #  print("Roboter steht!")
-                        continue
                     print("Velocity: " + str(self.velocity))
-                if Robot.moveZMax != (self.cachedCommands[2] * Robot.moveZMax):
-                    self.currentZ = self.cachedCommands[2] * self.moveZMax
-                    self.createTraj(self.currentZ)
+                if self.velocity == 0.0:  # Breche Iterationsdurchlauf ab, wenn keine Geschwindigkeit
+                    print("Roboter steht!")
+                    continue
+                if self.currentZ != (self.cachedCommands[2] * Robot.moveZMax):
+                    self.currentZ = self.cachedCommands[2] * Robot.moveZMax
+                    self.currentTraj = self.createTraj(self.currentZ)
                 # Überprüfe, ob aktuelle Leg Position in der Mitte der Trajektorie liegt,um Trajektorie um Z zu rotieren
-                if self.cachedCommands[1] != self.degree and (self.trajAIndex == (self.middleXZIndex - 1) or self.trajBIndex == (self.middleXZIndex - 1)):
+                if self.cachedCommands[1] != self.degree and ((self.trajAIndex == (self.middleXZIndex - 1) or self.trajBIndex == (self.middleXZIndex - 1))):
                     self.degree = self.cachedCommands[1]
                     print("Rotation Degree: " + str(self.degree))
                     tmpTraj = list(copy.deepcopy(self.traj))
@@ -158,6 +157,8 @@ class Robot:
                         # np.round(np.array,digits) falls gerundet werden soll, sonst raw
                         self.currentTraj[i] = copy.deepcopy(tmpTraj[i])  # "1" bleibt im Vektor
                         #  print("Trajektorie: " + str(self.traj[i][:-1]))  # zeige Traj. ohne "1"
+                    """print("Allgemeine Trajektorie: " + str(self.traj))
+                    print("Aktuelle Trajektorie: " + str(self.currentTraj))"""
             else:  # Keine Kommandos. Warte auf Kommandos...
                 continue
 
@@ -183,12 +184,19 @@ class Robot:
             allCurrentPositions = []
             for i, val in enumerate(self.workspacePositions):  # Trajektorie zu jeweiligen Arbeitsbereich dazuaddieren
                 if (i % 2) == 0:
-                    aPosition = list(np.add(val, legATraj))
+                    # aPosition = list(np.add(val, legATraj))
+                    aPosition = []
+                    for s in range(len(legATraj) - 1):  # letztes Element "1" soll nicht berücksichtigt werden
+                        aPosition.append(val[s] + legATraj[s])
+                    aPosition.append(val[-1])  # letztes Element "1" ohne Addition hinzufuegen
                     allCurrentPositions.append(aPosition)
                 else:
-                    bPosition = list(np.add(val, legBTraj))
+                    # bPosition = list(np.add(val, legBTraj))
+                    bPosition = []
+                    for s in range(len(legBTraj) - 1):
+                        bPosition.append(val[s] + legBTraj[s])
+                    bPosition.append(val[-1])
                     allCurrentPositions.append(bPosition)
-
             # Punkte zur Ausführung an die
             # Beinobjekte übergeben
             # print(allCurrentPositions)
@@ -229,6 +237,6 @@ class Robot:
 
 
 if __name__ == "__main__":
-    rb = Robot(False)
+    rb = Robot(True)
     rb.iterate()
 
