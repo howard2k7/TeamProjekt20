@@ -70,11 +70,11 @@ class Robot:
         # Trajektorienliste mit Trajektorienpunkten erzeugen
         self.traj = self.createTraj(Robot.moveZMax)  # nicht veränderbar
         self.currentTraj = copy.copy(self.traj)
-        print(self.traj)
+        print("Folgende Trajektorie wird abgefahren: " + str(self.traj))
         print("Trajektorienlänge: " + str(len(self.traj)))
 
         self.trajAIndex = -1  # Schwingungsanfangsindex
-        self.trajBIndex = math.floor(len(self.traj)/2) - 1  # Stemmungsanfangsindex
+        self.trajBIndex = math.floor(len(self.currentTraj)/2) - 1  # Stemmungsanfangsindex
 
         time.sleep(1)
 
@@ -108,9 +108,6 @@ class Robot:
         self.middleXZIndex = math.ceil(xzPoints / 2)
         # print(self.middleXZIndex)
 
-        # xPoints = 5
-        # xzPoints = 3
-
         # xMax/2 = 0.03 m
         # zMax = 0.03 m
 
@@ -137,20 +134,20 @@ class Robot:
             if self.cachedCommands:
                 if self.velocity != self.cachedCommands[0]:
                     self.velocity = self.cachedCommands[0]
-                    print("Velocity: " + str(self.velocity))
+                    #print("Velocity: " + str(self.velocity))
                 if self.velocity == 0.0:  # Breche Iterationsdurchlauf ab, wenn keine Geschwindigkeit
                     #print("Roboter steht!")
                     continue
                 if self.currentZ != (self.cachedCommands[2] * Robot.moveZMax):
                     self.currentZ = self.cachedCommands[2] * Robot.moveZMax
-                    print(self.currentZ)
                     self.currentTraj = self.createTraj(self.currentZ)
+                    #print("Height: " + str(self.currentZ))
                 # Überprüfe, ob aktuelle Leg Position in der Mitte der Trajektorie liegt,um Trajektorie um Z zu rotieren
                 if self.cachedCommands[1] != self.degree and ((self.trajAIndex == (self.middleXZIndex - 1) or self.trajBIndex == (self.middleXZIndex - 1))):
                     self.degree = self.cachedCommands[1]
-                    print("Rotation Degree: " + str(self.degree))
-                    tmpTraj = list(copy.deepcopy(self.traj))
-                    for i in range(len(self.traj)):
+                    #print("Rotation Degree: " + str(self.degree))
+                    tmpTraj = list(copy.deepcopy(self.currentTraj))
+                    for i in range(len(self.currentTraj)):
                         # "1" ist schon im Vektor: tmpTraj[i] += (1,)
                         # print("RotMatrix: " + str(self.rotMatrixZ()))
                         tmpTraj[i] = self.createRotatedVector(tmpTraj[i], self.degree)
@@ -158,8 +155,7 @@ class Robot:
                         # np.round(np.array,digits) falls gerundet werden soll, sonst raw
                         self.currentTraj[i] = copy.deepcopy(tmpTraj[i])  # "1" bleibt im Vektor
                         #  print("Trajektorie: " + str(self.traj[i][:-1]))  # zeige Traj. ohne "1"
-                    """print("Allgemeine Trajektorie: " + str(self.traj))
-                    print("Aktuelle Trajektorie: " + str(self.currentTraj))"""
+                    #print("Aktuelle Trajektorie: " + str(self.currentTraj))
             else:  # Keine Kommandos. Warte auf Kommandos...
                 continue
 
@@ -183,16 +179,14 @@ class Robot:
             # Schwingtrajektorienpunkt an die Orte
             # der drei schwingenden Beine verschieben
             allCurrentPositions = []
-            for i, val in enumerate(self.workspacePositions):  # Trajektorie zu jeweiligen Arbeitsbereich dazuaddieren
+            for i, val in enumerate(self.workspacePositions):  # Trajektorie zu jeweiligen Arbeitsbereiche dazuaddieren
                 if (i % 2) == 0:
-                    # aPosition = list(np.add(val, legATraj))
                     aPosition = []
                     for s in range(len(legATraj) - 1):  # letztes Element "1" soll nicht berücksichtigt werden
                         aPosition.append(val[s] + legATraj[s])
                     aPosition.append(val[-1])  # letztes Element "1" ohne Addition hinzufuegen
                     allCurrentPositions.append(aPosition)
                 else:
-                    # bPosition = list(np.add(val, legBTraj))
                     bPosition = []
                     for s in range(len(legBTraj) - 1):
                         bPosition.append(val[s] + legBTraj[s])
