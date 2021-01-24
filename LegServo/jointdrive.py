@@ -28,7 +28,7 @@ class JointDrive(ServoAx12a):
 
     # Min angleoffset of servo in radian
 
-    _ANGLE_RADIAN_MIN = ServoAx12a._ANGLE_MIN_DEGREE * 2 * math.pi / 360
+    _ANGLE_RADIAN_MIN = ServoAx12a._ANGLE_MIN_DEGREE * math.pi / 360
 
     # Ticks per rad
     _ANGLE_UNIT = ServoAx12a._ANGLE_MAX_TICKS / (
@@ -67,13 +67,13 @@ class JointDrive(ServoAx12a):
 
     def __convertAngleToTicks(self, angle: float) -> int:
 
-        if angle < self.aMin + self.aOffset or angle > self.aMax + self.aOffset:
-            angle = self.aMin
+        '''if angle < self.aMin + self.aOffset or angle > self.aMax + self.aOffset:
+            angle = self.aMin'''
         # control Servo from the right side
         if self.counterClockWise:
-            angle = self._ANGLE_RADIAN_MAX - angle + self.aOffset
+            angle = self._ANGLE_RADIAN_MAX - self._ANGLE_RADIAN_ZERO - angle - self.aOffset
         else:
-            angle = self._ANGLE_RADIAN_MIN + angle - self.aOffset
+            angle = self._ANGLE_RADIAN_MIN + self._ANGLE_RADIAN_ZERO + angle + self.aOffset
 
         return int(round(abs((self._ANGLE_UNIT * angle))))
 
