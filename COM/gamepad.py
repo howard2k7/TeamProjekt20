@@ -143,8 +143,6 @@ class Gamepad:
 		if c < 0:
 			c += 360
 
-		if a == 0.0:
-			c = 0
 		c = round(c, 0)  # rundet auf ganze Zahl
 
 
@@ -198,11 +196,12 @@ class Gamepad:
 					self.socket.send(msgpack.packb("Unknown key pressed!"))
 
 			self.speed, self.angle = self.axis(gamepad)
-			if (self.speed > 0.0001) or (self.angle):
-
-
-				self.socket.send(msgpack.packb([self.mother.pace * self.speed , self.angle * (math.pi) / 180, 1.0]))
-				self.mother.write2("Speed: " + str(self.speed) + " Angle: " + str(self.angle))
+			if (self.angle == 270):
+				self.socket.send(msgpack.packb([self.mother.pace * 0, self.angle * (math.pi) / 180, 1.0]))
+			elif (self.speed > 0.09) or (self.angle):
+				#self.socket.send(msgpack.packb([self.mother.pace * self.speed , self.angle * (math.pi) / 180, 1.0]))
+				self.socket.send(msgpack.packb([self.mother.pace * 1, self.angle * (math.pi) / 180, 1.0]))
+				self.mother.write2("Speed: " + str(1) + " Angle: " + str(self.angle))
 				#print("Speed " + str(self.speed) + " Winkel: " + str(self.angle))
 
 			#pg.display.flip()

@@ -100,7 +100,8 @@ def testButtonMapping():
 				if event.key == pg.K_ESCAPE:
 					running = False
 		printAllPressedButton(joystick)
-
+		print(joystick.get_axis(0))
+		print(joystick.get_axis(1))
 
 		pg.display.flip()
 		clock.tick(30)
