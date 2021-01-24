@@ -43,7 +43,7 @@ class Leg:
         print("LT: ", self.lt, self.ltSquare)
 
         self.jointDriveBroadcast = JointDrive(id=254)
-        self.jointDriveAlpha = JointDrive(id=alphaID, aOffset= 0)
+        self.jointDriveAlpha = JointDrive(id=alphaID, aOffset= 0, ccw = True)
         self.jointDriveBeta = JointDrive(id=betaID, aOffset= 0.34, ccw = True)
         self.jointDriveGamma = JointDrive(id=gammaID, aOffset= 1.09)
         self.oldAngles = [self.jointDriveAlpha.getCurrentJointAngle(), self.jointDriveBeta.getCurrentJointAngle(),
@@ -293,14 +293,14 @@ class Leg:
         self.oldAngles = newAngles.copy()
         print(self.lastPosition)
 
-    def setFootPosPoints(self, footPos=[0.0, 0.0, 0.0, 1]):
+    def setFootPosPoints(self, footPos=[0.0, 0.0, 0.0, 1], speed = 1):
 
         footPosBasis = footPos.copy()
         self.lastPosition = footPosBasis.copy()
-        print(self.lastPosition)
+        #print(self.lastPosition)
         newAngles = self.invKinAlphaJoint(self.calcRotation_Z_Axis_OffsetAlphaKoord(footPosBasis))
 
-        angleSpeed = self.calcServoSpeed(newAngles, self.oldAngles, 254)
+        angleSpeed = self.calcServoSpeed(newAngles, self.oldAngles, 254 * speed)
         #print(angleSpeed)
         #print(newAngles)
         self.servofinished = False
@@ -308,7 +308,7 @@ class Leg:
         self.jointDriveBeta.setDesiredAngleSpeed(newAngles[1], speed=angleSpeed[1], trigger=True)
         self.jointDriveGamma.setDesiredAngleSpeed(newAngles[2], speed=angleSpeed[2], trigger=True)
         self.jointDriveBroadcast.action();
-        print(self.lastPosition)
+        #print(self.lastPosition)
 
         self.oldAngles = newAngles.copy()
 

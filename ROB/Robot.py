@@ -8,7 +8,7 @@ from mincom import MinCom
 from HexaplotSender import HexaplotSender
 from LegDummy import LegDummy
 from COM.Robhost import Host
-#from LegServo.LegFF import Leg
+from LegServo.LegFF import Leg
 
 
 class Robot:
@@ -39,10 +39,10 @@ class Robot:
             else:
                 self.host = Host()
             # sechs reale Beinobjekte mit entsprechenden Joint IDs erzeugen
-            self.legs = [Leg(1, 1, 3, 5), Leg(2, 2, 4, 6),
-                         Leg(3, 8, 10, 12), Leg(4, 14, 16, 18),
-                         Leg(5, 13, 15, 17), Leg(6, 7, 9, 11)]
-            # self.legs = [Leg(1, 1, 3, 5)]
+            #self.legs = [Leg(1, 1, 3, 5), Leg(2, 2, 4, 6),
+                         #Leg(3, 8, 10, 12), Leg(4, 14, 16, 18),
+                         #Leg(5, 13, 15, 17), Leg(6, 7, 9, 11)]
+            self.legs = [Leg(1, 3, 14, 15)]
 
         self.cycleTime = 0.05  # Durchlaufzeit einer Iteration in Sekunden
         self.oneStepTime = 1.0  # Durchlaufzeit einer ganzen Bewegung durch die Trajektorienliste
@@ -139,10 +139,11 @@ class Robot:
                     self.velocity = self.cachedCommands[0]
                     print("Velocity: " + str(self.velocity))
                 if self.velocity == 0.0:  # Breche Iterationsdurchlauf ab, wenn keine Geschwindigkeit
-                    print("Roboter steht!")
+                    #print("Roboter steht!")
                     continue
                 if self.currentZ != (self.cachedCommands[2] * Robot.moveZMax):
                     self.currentZ = self.cachedCommands[2] * Robot.moveZMax
+                    print(self.currentZ)
                     self.currentTraj = self.createTraj(self.currentZ)
                 # Überprüfe, ob aktuelle Leg Position in der Mitte der Trajektorie liegt,um Trajektorie um Z zu rotieren
                 if self.cachedCommands[1] != self.degree and ((self.trajAIndex == (self.middleXZIndex - 1) or self.trajBIndex == (self.middleXZIndex - 1))):
@@ -203,8 +204,8 @@ class Robot:
             if self.testMode:
                 self.hs.send_points(allCurrentPositions)  # sende an plotter
             else:
-                for i, val in self.legs:
-                    val.setFootPosPoints(allCurrentPositions[i])
+                #for i, val in self.legs:
+                self.legs[0].setFootPosPoints(allCurrentPositions[0], self.velocity)
 
             self.trajAIndex += 1
             self.trajBIndex += 1
@@ -213,7 +214,7 @@ class Robot:
             periodLength = tEnd - tStart
             #  print("periodLength: " + str(periodLength) + " (aus Zeile 198)")  # dient zu Testzwecken
             #  print("Iterate Durchlauf vorbei.")
-            time.sleep(self.cycleTime - periodLength)
+            time.sleep((self.cycleTime - periodLength)/self.velocity)
 
     def getNewCommands(self):  # erhalte neue Kommandos
         if self.testMode:
@@ -221,11 +222,12 @@ class Robot:
             commands = self.mc.getData()
         else:
             commands = self.host.lastPressed  # list[velocity(0.0 bis 1.0)],[degree(rad)],[maxZ(0.0 bis 1.0)]
+            #print(commands)
         #print(commands)
         if self.cachedCommands == commands or commands == 0 or (any(isinstance(x, str) for x in commands)):  # keine neuen Kommandos oder ungültig
             return
         self.cachedCommands = commands
-        print(commands)
+        #print(commands)
 
     def createRotatedVector(self, vector, degree):  # erstellt rotierten Vektor um z Achse um Grad degree
         rotationMatrix = np.array([(math.cos(degree), -math.sin(degree), 0, 0),
@@ -237,6 +239,6 @@ class Robot:
 
 
 if __name__ == "__main__":
-    rb = Robot(True)
+    rb = Robot(False)
     rb.iterate()
 
