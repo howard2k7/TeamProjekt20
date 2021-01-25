@@ -145,6 +145,14 @@ class Gamepad:
 
 		c = round(c, 0)  # rundet auf ganze Zahl
 
+		# Geschwindigkeit
+		a = round(math.sqrt(b * b + a * a), 1)
+
+		if a >= 1.0:
+			a = 1.0
+
+		if a == 0:
+			c = 0.0
 
 		return abs(a), c
 
@@ -196,14 +204,14 @@ class Gamepad:
 					self.socket.send(msgpack.packb("Unknown key pressed!"))
 
 			self.speed, self.angle = self.axis(gamepad)
-			if (self.angle == 90.0):
-				self.socket.send(msgpack.packb([self.mother.pace * 0, 0, 0.1])) #self.angle * (math.pi) / 180
-			else:	#(self.speed > 0.09) or (self.angle)
+			#if (self.angle == 90.0):
+				#self.socket.send(msgpack.packb([self.mother.pace * 0, 0, 0.1])) #self.angle * (math.pi) / 180
+			#else:	#(self.speed > 0.09) or (self.angle)
 				#self.socket.send(msgpack.packb([self.mother.pace * self.speed , self.angle * (math.pi) / 180, 1.0]))
-				self.socket.send(msgpack.packb([ self.mother.pace * 1, self.angle * (math.pi) / 180, 0.1]))
-				self.mother.write2("Speed: " + str(1) + " Angle: " + str(self.angle))
+			self.socket.send(msgpack.packb([self.speed, self.angle * (math.pi) / 180, 0.1]))
+			self.mother.write2("Speed: " + str(1) + " Angle: " + str(self.angle))
 				#print("Speed " + str(self.speed) + " Winkel: " + str(self.angle))
-
+			"""self.mother.pace * 1"""
 			#pg.display.flip()
 
 			## TODO: Change to Array for more than 1 valuechange (Start, End e.t)
