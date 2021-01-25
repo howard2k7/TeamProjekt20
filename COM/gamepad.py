@@ -207,11 +207,10 @@ class Gamepad:
 			#if (self.angle == 90.0):
 				#self.socket.send(msgpack.packb([self.mother.pace * 0, 0, 0.1])) #self.angle * (math.pi) / 180
 			#else:	#(self.speed > 0.09) or (self.angle)
-				#self.socket.send(msgpack.packb([self.mother.pace * self.speed , self.angle * (math.pi) / 180, 1.0]))
-			self.socket.send(msgpack.packb([self.speed, self.angle * (math.pi) / 180, 0.1]))
+				#self.socket.send(msgpack.packb([ * self.speed , self.angle * (math.pi) / 180, 1.0]))
+			self.socket.send(msgpack.packb([self.mother.pace * self.speed, self.angle * (math.pi) / 180, 0.1]))
 			self.mother.write2("Speed: " + str(1) + " Angle: " + str(self.angle))
 				#print("Speed " + str(self.speed) + " Winkel: " + str(self.angle))
-			"""self.mother.pace * 1"""
 			#pg.display.flip()
 
 			## TODO: Change to Array for more than 1 valuechange (Start, End e.t)
