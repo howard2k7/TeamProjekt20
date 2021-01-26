@@ -5,7 +5,7 @@ from threading import Thread
 
 class HexaplotReceiver:
 
-    def __init__(self, ip="127.0.0.1", port=5555):
+    def __init__(self, ip="127.0.0.1", port=5558):
         self.data = [(0, 0, 0)]
 
         context = zmq.Context()

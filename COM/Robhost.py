@@ -27,7 +27,7 @@ class Host:
 		while True:
 			try:
 				self.lastPressed = msgpack.unpackb(self.socket.recv())
-				print(self.lastPressed)
+				#print(self.lastPressed)
 				if (self.lastPressed == 1):
 					print("SYN")
 					self.socket.send(msgpack.packb("ACK"))

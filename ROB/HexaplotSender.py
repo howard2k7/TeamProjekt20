@@ -6,7 +6,7 @@ import random
 
 class HexaplotSender:
 
-    def __init__(self, ip="127.0.0.1", port=5555):
+    def __init__(self, ip="127.0.0.1", port=5558):
         context = zmq.Context()
 
         self.socket = context.socket(zmq.PAIR)
