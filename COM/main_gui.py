@@ -194,6 +194,21 @@ class mainGui:
         # call paceSelect method with pace
         self.write("Setze Geschwindigkeit auf: " + str(self.pace) + " !")
 
+    def paceButton(self):
+        if self.selectedPace.get() == "Geschwindigkeit 1":
+            self.pace = 0.666
+            self.selectedPace.set("Geschwindigkeit 2")
+
+        elif self.selectedPace.get() == "Geschwindigkeit 2":
+            self.pace = .333
+            self.selectedPace.set("Geschwindigkeit 3")
+
+        elif self.selectedPace.get() == "Geschwindigkeit 3":
+            self.pace = .111
+            self.selectedPace.set("Geschwindigkeit 1")
+            # call paceSelect method with pace
+        self.write("Setze Geschwindigkeit auf: " + str(self.pace) + " !")
+
     def write(self, txt):
         if txt == "BLANK":
             self.output.insert(END, "\n")

@@ -198,6 +198,10 @@ class Gamepad:
 						if self.delayHelper == 0:
 							self.setNextHeight(actualHeight)
 							self.delayHelper = 1
+					if (buttons[somethingPressed] == "SQUARE") or (buttons[somethingPressed] == "Y"):
+						if self.delayHelper == 0:
+							self.mother.paceButton()
+							self.delayHelper = 1
 					else:
 						self.socket.send(msgpack.packb(buttons[somethingPressed]))
 						self.mother.write2(buttons[somethingPressed])
