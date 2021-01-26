@@ -145,6 +145,15 @@ class Gamepad:
 
 		c = round(c, 0)  # rundet auf ganze Zahl
 
+		# Geschwindigkeit
+		a = round(math.sqrt(b * b + a * a), 1)
+
+		if a >= 1.0:
+			a = 1.0
+
+		if a == 0:
+			c = 0.0
+
 
 		return abs(a), c
 
