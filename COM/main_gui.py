@@ -7,7 +7,8 @@ import re
 
 class mainGui:
     def __init__(self, master):
-        self.pace = 0.0
+        self.pace = 1.0
+        self.height = 1
         self.master = master
         master.geometry("1500x700")
         master.config(bg="white")
@@ -172,11 +173,11 @@ class mainGui:
         height = 0
         self.write("Befehl: " + self.selectedHeight.get())
         if self.selectedHeight.get() == "Höhe 1":
-            height = 1
+            self.height = 1
         elif self.selectedHeight.get() == "Höhe 2":
-            height = 2
+            self.height = 2
         elif self.selectedHeight.get() == "Höhe 3":
-            height = 3
+            self.height = 3
             # call heightSelect method with height
         help = verbindungsTest.hoeheStufe(height)
         self.write(str(help))
