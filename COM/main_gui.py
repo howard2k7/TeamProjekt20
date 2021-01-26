@@ -175,12 +175,12 @@ class mainGui:
         if self.selectedHeight.get() == "Höhe 1":
             self.height = 1
         elif self.selectedHeight.get() == "Höhe 2":
-            self.height = 2
+            self.height = .666
         elif self.selectedHeight.get() == "Höhe 3":
-            self.height = 3
+            self.height = .333
             # call heightSelect method with height
         help = verbindungsTest.hoeheStufe(height)
-        self.write(str(help))
+        #self.write(str(help))
 
 
     def paceSelect(self):

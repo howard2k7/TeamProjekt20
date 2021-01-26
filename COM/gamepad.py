@@ -208,7 +208,7 @@ class Gamepad:
 
 			#self.socket.send(msgpack.packb([self.mother.pace * self.speed , self.angle * (math.pi) / 180, 1.0]))
 			self.socket.send(msgpack.packb([self.mother.pace * self.speed, self.angle * (math.pi) / 180, self.mother.height]))
-			self.mother.write2("Speed: " + str(1) + " Angle: " + str(self.angle))
+			self.mother.write2("Speed: " + str(self.mother.pace * self.speed) + " Angle: " + str(self.angle))
 			#print("Speed " + str(self.speed) + " Winkel: " + str(self.angle))
 
 			#pg.display.flip()
