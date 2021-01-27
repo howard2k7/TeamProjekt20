@@ -218,7 +218,7 @@ class Robot:
         print(commands)
 
     def createRotatedVector(self, vector, degree):  # erstellt rotierten Vektor um z Achse um Grad degree
-        degree = (360 * (math.pi) / 180) - degree
+        #degree = (360 * (math.pi) / 180) - degree
         rotationMatrix = np.array([(math.cos(degree), -math.sin(degree), 0, 0),
                                   (math.sin(degree), math.cos(degree), 0, 0),
                                   (0, 0, 1, 0),
