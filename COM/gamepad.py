@@ -164,14 +164,6 @@ class Gamepad:
 			else:
 				self.delayHelper = 0
 
-	def setNextHeight(self, actual):
-		if actual == "Höhe 1":
-			self.mother.selectedHeight.set("Höhe 2")
-		elif actual == "Höhe 2":
-			self.mother.selectedHeight.set("Höhe 3")
-		elif actual == "Höhe 3":
-			self.mother.selectedHeight.set("Höhe 1")
-
 	def getControlSignals(self):
 		# Init Gamepad
 		gamepad, buttons = self.initializeJoystick()
@@ -194,9 +186,8 @@ class Gamepad:
 					self.running = False
 				if somethingPressed in buttons.keys():
 					if buttons[somethingPressed] == "X":
-						actualHeight = self.mother.selectedHeight.get()
 						if self.delayHelper == 0:
-							self.setNextHeight(actualHeight)
+							self.mother.heightButton()
 							self.delayHelper = 1
 					if (buttons[somethingPressed] == "SQUARE") or (buttons[somethingPressed] == "Y"):
 						if self.delayHelper == 0:

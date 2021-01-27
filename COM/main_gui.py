@@ -170,7 +170,6 @@ class mainGui:
 
 
     def heightSelect(self):
-        height = 0
         self.write("Befehl: " + self.selectedHeight.get())
         if self.selectedHeight.get() == "Höhe 1":
             self.height = 1
@@ -179,9 +178,22 @@ class mainGui:
         elif self.selectedHeight.get() == "Höhe 3":
             self.height = .333
             # call heightSelect method with height
-        help = verbindungsTest.hoeheStufe(height)
         #self.write(str(help))
 
+    def heightButton(self):
+        if self.selectedHeight.get() == "Höhe 1":
+            self.height = .666
+            self.selectedHeight.set("Höhe 2")
+
+        elif self.selectedHeight.get() == "Höhe 2":
+            self.height = .333
+            self.selectedHeight.set("Höhe 3")
+
+        elif self.selectedHeight.get() == "Höhe 3":
+            self.height = 1.0
+            self.selectedHeight.set("Höhe 1")
+
+        self.write("Setze Höhe auf: " + str(self.height) + " !")
 
     def paceSelect(self):
 
@@ -204,7 +216,7 @@ class mainGui:
             self.selectedPace.set("Geschwindigkeit 3")
 
         elif self.selectedPace.get() == "Geschwindigkeit 3":
-            self.pace = .111
+            self.pace = 1.0
             self.selectedPace.set("Geschwindigkeit 1")
             # call paceSelect method with pace
         self.write("Setze Geschwindigkeit auf: " + str(self.pace) + " !")
