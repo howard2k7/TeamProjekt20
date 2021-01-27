@@ -1,6 +1,7 @@
 import itertools
 import os
-import serial
+from serial.tools import list_ports
+
 
 if os.name=='nt':
     import winreg
@@ -38,5 +39,5 @@ if os.name=='nt':
         return [full_port_name(port) for port in list(enumerate_serial_ports())]
 else:
     def serialPortList():
-        return [port[0] for port in list(serial.tools.list_ports.comports())]
+        return [port[0] for port in list(list_ports.comports())]
 
