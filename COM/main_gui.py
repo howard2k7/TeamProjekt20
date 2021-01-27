@@ -181,15 +181,17 @@ class mainGui:
         #self.write(str(help))
 
     def heightButton(self):
-        if self.selectedHeight.get() == "Höhe 1":
+        actualHeight = self.selectedHeight.get()
+
+        if actualHeight == "Höhe 1":
             self.height = .666
             self.selectedHeight.set("Höhe 2")
 
-        elif self.selectedHeight.get() == "Höhe 2":
+        elif actualHeight == "Höhe 2":
             self.height = .333
             self.selectedHeight.set("Höhe 3")
 
-        elif self.selectedHeight.get() == "Höhe 3":
+        elif actualHeight == "Höhe 3":
             self.height = 1.0
             self.selectedHeight.set("Höhe 1")
 
@@ -197,11 +199,12 @@ class mainGui:
 
     def paceSelect(self):
 
-        if self.selectedPace.get() == "Geschwindigkeit 1":
+        actualPace = self.selectedPace.get()
+        if actualPace == "Geschwindigkeit 1":
             self.pace = 1.0
-        elif self.selectedPace.get() == "Geschwindigkeit 2":
+        elif actualPace == "Geschwindigkeit 2":
             self.pace = .666
-        elif self.selectedPace.get() == "Geschwindigkeit 3":
+        elif actualPace == "Geschwindigkeit 3":
             self.pace = .333
         # call paceSelect method with pace
         self.write("Setze Geschwindigkeit auf: " + str(self.pace) + " !")
