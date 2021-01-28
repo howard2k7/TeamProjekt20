@@ -45,8 +45,9 @@ class Robot:
             # Leg(5, 13, 15, 17), Leg(6, 7, 9, 11)]
             self.legs = [Leg(1, 3, 14, 15)]
 
-        self.legStartPositions = [[0.186, -0.0315, -0.071, 1], [0.15, 0.08, -0.08, 1], [0, 0.18, -0.08, 1],
-                                  [-0.15, 0.08, -0.08, 1], [-0.15, -0.08, -0.08, 1], [0, -0.18, -0.08, 1]]
+        """self.legStartPositions = [[0.186, -0.0315, -0.071, 1], [0.15, 0.08, -0.08, 1], [0, 0.18, -0.08, 1],
+                                  [-0.15, 0.08, -0.08, 1], [-0.15, -0.08, -0.08, 1], [0, -0.18, -0.08, 1]]"""
+        self.workspacePositions = self.getWorkspacePositions()
 
         self.cycleTime = 0.05  # Durchlaufzeit einer Iteration in Sekunden
         self.oneStepTime = 1.0  # Durchlaufzeit einer ganzen Bewegung durch die Trajektorienliste
@@ -88,10 +89,17 @@ class Robot:
 
         self.iterate()
 
+    def getWorkspacePositions(self):
+        workspacePos = []
+        for val in self.legs:
+            workspacePos.append(val.getlastPosition())
+        # print("Arbeitsbereiche der Beine: " + str(workspacePos))
+        return workspacePos
+
     def moveLegsToStartPosition(self):
         newPos = []
         for i in range(len(self.legs)):
-            tmp = copy.copy(self.legStartPositions[i])
+            tmp = copy.copy(self.workspacePositions[i])
             if (i % 2) == 0:  # [0, 0, 0, 1]
                 tmp[0] += (Robot.moveXMax / 2)
             else:
@@ -210,7 +218,7 @@ class Robot:
     def moveToPos(self, legIndex, traj):
         moveToPos = []
         for i in range(len(traj) - 1):
-            moveToPos.append(self.legStartPositions[legIndex][i] + traj[i])
+            moveToPos.append(self.workspacePositions[legIndex][i] + traj[i])
         moveToPos.append(1.0)
         return moveToPos
 

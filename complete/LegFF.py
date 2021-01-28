@@ -48,8 +48,8 @@ class Leg:
         self.jointDriveGamma = JointDrive(id=gammaID, aOffset= 1.09)
         self.oldAngles = [self.jointDriveAlpha.getCurrentJointAngle(), self.jointDriveBeta.getCurrentJointAngle(),
                           self.jointDriveGamma.getCurrentJointAngle()]
-        #self.setFootPosPoints(calcRotation_Z_Axis_OffsetBasisKoord([0.111,0, -0.113,1]))
-        #time.sleep(2)
+        self.setFootPosPoints(self.calcRotation_Z_Axis_OffsetBasisKoord([0.111, 0, -0.113, 1]))
+        time.sleep(2)
 
     def invKinAlphaJoint(self, pos=[0, 0, 0,1]):  # Bestimmung der Gelenkwinkel basierend auf der Position des Fußpunktes im Alphakoordinatensystem
 
