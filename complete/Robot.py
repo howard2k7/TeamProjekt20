@@ -27,10 +27,10 @@ class Robot:
             # Testkommunikationsobjekt erzeugen
             # self.mc = MinCom()
             # sechs Beinobjekte mit entsprechenden Joint IDs erzeugen
-            #self.legs = [LegDummy(1, 1, 3, 5), LegDummy(2, 2, 4, 6),
-                         #LegDummy(3, 8, 10, 12), LegDummy(4, 14, 16, 18),
-                         #LegDummy(5, 13, 15, 17), LegDummy(6, 7, 9, 11)]
-            self.legs = [LegDummy(1, 1, 3, 5)]
+            self.legs = [LegDummy(1, 1, 3, 5), LegDummy(2, 2, 4, 6),
+                         LegDummy(3, 8, 10, 12), LegDummy(4, 14, 16, 18),
+                         LegDummy(5, 13, 15, 17), LegDummy(6, 7, 9, 11)]
+            #self.legs = [LegDummy(1, 1, 3, 5)]
         else:
             # Kommunikationsobjekt erzeugen
             if len(sys.argv) > 1:  # or ==3
@@ -38,13 +38,13 @@ class Robot:
             else:
                 self.host = Host()
             # sechs reale Beinobjekte mit entsprechenden Joint IDs erzeugen
-            # self.legs = [Leg(1, 1, 3, 5), Leg(2, 2, 4, 6),
-            # Leg(3, 8, 10, 12), Leg(4, 14, 16, 18),
-            # Leg(5, 13, 15, 17), Leg(6, 7, 9, 11)]
-            self.legs = [Leg(1, 3, 14, 15)]
+                self.legs = [Leg(1, 1, 3, 5), Leg(2, 2, 4, 6),
+                             Leg(3, 8, 10, 12), Leg(4, 14, 16, 18),
+                             Leg(5, 13, 15, 17), Leg(6, 7, 9, 11)]
+            #self.legs = [Leg(1, 3, 14, 15)]
 
-        self.legStartPositions = [[0.16, -0.080, -0.15, 1], [0.15, 0.08, -0.08, 1], [0, 0.18, -0.08, 1],
-                                  [-0.15, 0.08, -0.08, 1], [-0.15, -0.08, -0.08, 1], [0, -0.18, -0.08, 1]]
+        self.legStartPositions = [[0.16, -0.08, -0.15, 1], [0.16, 0.08, -0.15, 1], [0, 0.18, -0.15, 1],
+                                  [-0.16, 0.08, -0.15, 1], [-0.16, -0.08, -0.15, 1], [0, -0.18, -0.15, 1]]
 
         self.cycleTime = 0.05  # Durchlaufzeit einer Iteration in Sekunden
         self.oneStepTime = 1.0  # Durchlaufzeit einer ganzen Bewegung durch die Trajektorienliste
@@ -76,7 +76,7 @@ class Robot:
         self.traj = self.createTraj(Robot.moveZMax)
         self.currentTraj = copy.copy(self.traj)
 
-        print("Folgende Trajektorie wird angefahren: " + str(self.traj))
+        #print("Folgende Trajektorie wird angefahren: " + str(self.traj))
         # print("Trajektorienlänge: " + str(len(self.traj)))
 
         self.trajAIndex = -1  # Schwingungsanfangsindex
@@ -147,15 +147,15 @@ class Robot:
                     self.currentTraj = copy.copy(self.traj)
                     if self.degree != 0:
                         self.rotateTraj(self.degree)
-                    print("Aktuelle Trajektorie mit neuer Höhe bei: " + str(self.currentZ) + str(self.currentTraj))
+                    #print("Aktuelle Trajektorie mit neuer Höhe bei: " + str(self.currentZ) + str(self.currentTraj))
                     # print("Height: " + str(self.currentZ))
                 # Überprüfe, ob aktuelle Leg Position in der Mitte der Trajektorie liegt,um Trajektorie um Z zu rotieren
                 if (self.cachedCommands[1] != self.degree) and (
                         (self.trajAIndex == (self.middleXZIndex - 1) or self.trajBIndex == (self.middleXZIndex - 1))):
                     self.degree = self.cachedCommands[1]
                     self.rotateTraj(self.degree)
-                    print(
-                        "Aktuelle Trajektorie mit neuer Richtung bei Grad: " + str(self.degree) + str(self.currentTraj))
+                    """print(
+                        "Aktuelle Trajektorie mit neuer Richtung bei Grad: " + str(self.degree) + str(self.currentTraj))"""
             else:  # Keine Kommandos. Warte auf Kommandos...
                 continue
 
@@ -174,28 +174,41 @@ class Robot:
             # print(legATraj)
             # print(legBTraj)
 
-            # Stemmtrajektorienpunkt an die Orte
-            # der drei stemmenden Beine verschieben
-            # Schwingtrajektorienpunkt an die Orte
-            # der drei schwingenden Beine verschieben
-            allCurrentPositions = []
-            for i in range(len(self.legs)):
-                if (i % 2) != 0:
-                    allCurrentPositions.append(self.moveToPos(i, legATraj))
-                else:
-                    allCurrentPositions.append(self.moveToPos(i, legBTraj))
             # Punkte zur Ausführung an die
             # Beinobjekte übergeben
             # print(allCurrentPositions)
             if self.testMode:
+                allCurrentPositions = []
+                for i in range(len(self.legs)):
+                    if (i % 2) != 0:
+                        allCurrentPositions.append(self.moveToPos(i, legATraj))
+                    else:
+                        allCurrentPositions.append(self.moveToPos(i, legBTraj))
+                for i in range(len(self.legs)):
+                    if (i % 2) != 0:
+                        if allCurrentPositions[i] == (self.moveToPos(0, self.currentTraj[self.trajAIndex])):
+                            print("Bein hält!")
+                    else:
+                        if allCurrentPositions[i] == (self.moveToPos(0, self.currentTraj[self.trajBIndex])):
+                            print("Bein hält!")
                 self.hs.send_points(allCurrentPositions)  # sende an plotter
             else:
-                # for i, val in self.legs:   #  TODO bei 6 Beinen Index durch i ersetzten
-                if allCurrentPositions[0] != (self.moveToPos(0, self.currentTraj[self.trajBIndex])):
-                    self.legs[0].setFootPosPoints(allCurrentPositions[0], self.velocity)
+                for i in range(len(self.legs)):
+                    if (i % 2) != 0:
+                        if self.moveToPos(i, legATraj) != (self.moveToPos(0, self.currentTraj[self.trajAIndex])):
+                            self.legs[i].setFootPosPoints(self.moveToPos(i, legATraj), self.velocity)
+                    else:
+                        if self.moveToPos(i, legBTraj) != (self.moveToPos(0, self.currentTraj[self.trajBIndex])):
+                            self.legs[i].setFootPosPoints(self.moveToPos(i, legBTraj), self.velocity)
+
             #print(allCurrentPositions[0] == (self.moveToPos(0, self.currentTraj[self.trajBIndex])))
             #print("Move to: " + str(allCurrentPositions[0]))
             #print("Current Trajectory Point: " + str((self.moveToPos(0, self.currentTraj[self.trajBIndex]))))
+
+            # Stemmtrajektorienpunkt an die Orte
+            # der drei stemmenden Beine verschieben
+            # Schwingtrajektorienpunkt an die Orte
+            # der drei schwingenden Beine verschieben
             self.trajAIndex += 1
             self.trajBIndex += 1
 
@@ -223,7 +236,7 @@ class Robot:
                 any(isinstance(x, str) for x in commands)):  # keine neuen Kommandos oder ungültig
             return
         self.cachedCommands = commands
-        print(commands)
+        #print(commands)
 
     def rotateTraj(self, degree):  # erstellt rotierten Vektor um z Achse um Grad degree
         self.currentTraj = []
@@ -238,4 +251,4 @@ class Robot:
 
 
 if __name__ == "__main__":
-    rb = Robot(False)
+    rb = Robot(True)

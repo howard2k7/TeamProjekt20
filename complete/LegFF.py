@@ -43,7 +43,7 @@ class Leg:
         print("LT: ", self.lt, self.ltSquare)
 
         self.jointDriveBroadcast = JointDrive(id=254)
-        self.jointDriveAlpha = JointDrive(id=alphaID, aOffset= 0, ccw = True)
+        self.jointDriveAlpha = JointDrive(id=alphaID, aOffset= 0, ccw = False)
         self.jointDriveBeta = JointDrive(id=betaID, aOffset= 0.34, ccw = True)
         self.jointDriveGamma = JointDrive(id=gammaID, aOffset= 1.09)
         self.oldAngles = [self.jointDriveAlpha.getCurrentJointAngle(), self.jointDriveBeta.getCurrentJointAngle(),
