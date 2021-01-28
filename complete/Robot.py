@@ -7,10 +7,8 @@ import sys
 from mincom import MinCom
 from HexaplotSender import HexaplotSender
 from LegDummy import LegDummy
-from COM.Robhost import Host
-
-
-# from LegServo.LegFF import Leg
+from Robhost import Host
+from LegServo.LegFF import Leg
 
 
 class Robot:
@@ -246,4 +244,4 @@ class Robot:
 
 
 if __name__ == "__main__":
-    rb = Robot(True)
+    rb = Robot(False)
