@@ -17,7 +17,7 @@ class Leg:
 
         # Abstände (Offsets) der Beinansatzpunkte s. Folien 2 und 4, werden übergeben
         self.xB = (0.033, 0.033, 0.000, -0.033, -0.033, 0.000)  # kurze Seite L1,L2,L4,L5
-        self.yB = (-0.032, 0.032, 0.0445, 0.032, -0.032, 0.0445)  # lange Seite L3, L6
+        self.yB = (-0.032, 0.032, 0.0445, 0.032, -0.032, -0.0445)  # lange Seite L3, L6
 
         # Abstände aN: a0 nur bei L3,6 und L1,2,4,5 gleich, s. Foliensatz L2
         if legNumber == 3 or legNumber == 6:
@@ -48,8 +48,8 @@ class Leg:
         self.jointDriveGamma = JointDrive(id=gammaID, aOffset= 1.09)
         self.oldAngles = [self.jointDriveAlpha.getCurrentJointAngle(), self.jointDriveBeta.getCurrentJointAngle(),
                           self.jointDriveGamma.getCurrentJointAngle()]
-        self.setFootPosPoints([0.196,-0.032, -0.151,1])
-        time.sleep(2)
+        #self.setFootPosPoints(self.calcRotation_Z_Axis_OffsetBasisKoord([0.111,0, -0.113,1]))
+        #time.sleep(2)
 
     def invKinAlphaJoint(self, pos=[0, 0, 0,1]):  # Bestimmung der Gelenkwinkel basierend auf der Position des Fußpunktes im Alphakoordinatensystem
 
@@ -148,8 +148,7 @@ class Leg:
         print(self.lastPosition)
         self.setFootPosAngle(footPositionAlpha, footPositionBasis)  # Roboterbasiskoordinatensystem
 
-    def calcRotation_Z_Axis_OffsetAlphaKoord(self, pos=[0.0, 0.0, 0.0,
-                                                        1]):  # Offsets berechnen, um Punkte im Alphakoordinatensystem darzustellen
+    def calcRotation_Z_Axis_OffsetAlphaKoord(self, pos=[0.0, 0.0, 0.0, 1]):  # Offsets berechnen, um Punkte im Alphakoordinatensystem darzustellen
 
         if self.legNumber == 3:  # Rotation um 90 Grad
 
@@ -197,7 +196,7 @@ class Leg:
         elif self.legNumber == 4:
 
             pos[0] = pos[0] + self.xB[3] - self.legDistances[0]
-            pos[1] += self.yB[3]
+            pos[1] -= self.yB[3]
             pos[2] += self.legDistances[1]
 
         elif self.legNumber == 5:
@@ -213,8 +212,7 @@ class Leg:
             pos[2] += self.legDistances[1]
         return pos
 
-    def calcRotation_Z_Axis_OffsetBasisKoord(self, pos=[0.0, 0.0, 0.0,
-                                                        1]):  # Offsets berechnen, um Punkte im Basiskoordinatensystem darzustellen
+    def calcRotation_Z_Axis_OffsetBasisKoord(self, pos=[0.0, 0.0, 0.0, 1]):  # Offsets berechnen, um Punkte im Basiskoordinatensystem darzustellen
 
         if self.legNumber == 6:  # Rotation um 90 Grad
 
@@ -245,7 +243,7 @@ class Leg:
         if self.legNumber == 1:
 
             pos[0] = pos[0] + self.xB[0] + self.legDistances[0]
-            pos[1] -= self.yB[0]
+            pos[1] += self.yB[0]
             pos[2] -= self.legDistances[1]
 
         elif self.legNumber == 2:
@@ -262,22 +260,21 @@ class Leg:
 
         elif self.legNumber == 4:
 
-            pos[0] = pos[0] + self.xB[3] - self.legDistances[0]
+            pos[0] = pos[0] - self.xB[3] + self.legDistances[0]
             pos[1] += self.yB[3]
             pos[2] -= self.legDistances[1]
 
         elif self.legNumber == 5:
 
-            pos[0] = pos[0] + self.xB[4] - self.legDistances[0]
-            pos[1] += self.yB[4]
+            pos[0] = pos[0] - self.xB[4] + self.legDistances[0]
+            pos[1] -= self.yB[4]
             pos[2] -= self.legDistances[1]
 
         elif self.legNumber == 6:
 
             pos[0] += self.xB[5]
-            pos[1] = pos[1] - self.yB[5] - self.legDistances[0]
+            pos[1] = pos[1] + self.yB[5] - self.legDistances[0]
             pos[2] -= self.legDistances[1]
-        print(pos)
         return pos
 
     def setFootPosAngle(self, footPosAlpha=[0.0, 0.0, 0.0, 1], footPosBasis=[0.0, 0.0, 0.0, 1], speed=0):
