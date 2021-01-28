@@ -71,7 +71,7 @@ class Robot:
         self.moveLegsToStartPosition()
 
         self.middleXZIndex = 0
-        self.stopPointDuration = 1  # Anzahl der Iterationen die beim ersten Stemmpunkt abwarten soll (Haltepunkt)
+        self.stopPointDuration = 5  # Anzahl der Iterationen die beim ersten Stemmpunkt abwarten soll (Haltepunkt)
         # Trajektorienliste mit Trajektorienpunkten erzeugen
         self.traj = self.createTraj(Robot.moveZMax)
         self.currentTraj = copy.copy(self.traj)
@@ -251,4 +251,4 @@ class Robot:
 
 
 if __name__ == "__main__":
-    rb = Robot(True)
+    rb = Robot(False)
