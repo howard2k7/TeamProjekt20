@@ -8,8 +8,6 @@ from mincom import MinCom
 from HexaplotSender import HexaplotSender
 from LegDummy import LegDummy
 from Robhost import Host
-
-
 from LegFF import Leg
 
 
