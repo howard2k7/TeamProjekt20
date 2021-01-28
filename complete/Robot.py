@@ -7,8 +7,10 @@ import sys
 from mincom import MinCom
 from HexaplotSender import HexaplotSender
 from LegDummy import LegDummy
-from Robhost import Host
-from LegFF import Leg
+from COM.Robhost import Host
+
+
+# from LegServo.LegFF import Leg
 
 
 class Robot:
@@ -43,7 +45,7 @@ class Robot:
             # Leg(5, 13, 15, 17), Leg(6, 7, 9, 11)]
             self.legs = [Leg(1, 3, 14, 15)]
 
-        self.legStartPositions = [[0.186, -0.0315, -0.012, 1], [0.15, 0.08, -0.08, 1], [0, 0.18, -0.08, 1],
+        self.legStartPositions = [[0.186, -0.0315, -0.071, 1], [0.15, 0.08, -0.08, 1], [0, 0.18, -0.08, 1],
                                   [-0.15, 0.08, -0.08, 1], [-0.15, -0.08, -0.08, 1], [0, -0.18, -0.08, 1]]
 
         self.cycleTime = 0.05  # Durchlaufzeit einer Iteration in Sekunden
@@ -191,7 +193,7 @@ class Robot:
                 self.hs.send_points(allCurrentPositions)  # sende an plotter
             else:
                 # for i, val in self.legs:   #  TODO bei 6 Beinen Index durch i ersetzten
-                if allCurrentPositions[0] != (self.moveToPos(0, self.currentTraj[self.trajAIndex])):
+                if allCurrentPositions[0] != (self.moveToPos(0, self.currentTraj[self.trajBIndex])):
                     self.legs[0].setFootPosPoints(allCurrentPositions[0], self.velocity)
             #print(allCurrentPositions[0] == (self.moveToPos(0, self.currentTraj[self.trajBIndex])))
             #print("Move to: " + str(allCurrentPositions[0]))
@@ -236,4 +238,4 @@ class Robot:
 
 
 if __name__ == "__main__":
-    rb = Robot(False)
+    rb = Robot(True)
