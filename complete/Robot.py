@@ -27,10 +27,10 @@ class Robot:
             # Testkommunikationsobjekt erzeugen
             # self.mc = MinCom()
             # sechs Beinobjekte mit entsprechenden Joint IDs erzeugen
-            self.legs = [LegDummy(1, 1, 3, 5), LegDummy(2, 2, 4, 6),
-                         LegDummy(3, 8, 10, 12), LegDummy(4, 14, 16, 18),
-                         LegDummy(5, 13, 15, 17), LegDummy(6, 7, 9, 11)]
-            #self.legs = [LegDummy(1, 1, 3, 5)]
+            #self.legs = [LegDummy(1, 1, 3, 5), LegDummy(2, 2, 4, 6),
+                         #LegDummy(3, 8, 10, 12), LegDummy(4, 14, 16, 18),
+                         #LegDummy(5, 13, 15, 17), LegDummy(6, 7, 9, 11)]
+            self.legs = [LegDummy(1, 1, 3, 5)]
         else:
             # Kommunikationsobjekt erzeugen
             if len(sys.argv) > 1:  # or ==3
@@ -43,7 +43,7 @@ class Robot:
             # Leg(5, 13, 15, 17), Leg(6, 7, 9, 11)]
             self.legs = [Leg(1, 3, 14, 15)]
 
-        self.legStartPositions = [[0.186, -0.0315, -0.071, 1], [0.15, 0.08, -0.08, 1], [0, 0.18, -0.08, 1],
+        self.legStartPositions = [[0.16, -0.080, -0.15, 1], [0.15, 0.08, -0.08, 1], [0, 0.18, -0.08, 1],
                                   [-0.15, 0.08, -0.08, 1], [-0.15, -0.08, -0.08, 1], [0, -0.18, -0.08, 1]]
 
         self.cycleTime = 0.05  # Durchlaufzeit einer Iteration in Sekunden
@@ -227,6 +227,8 @@ class Robot:
 
     def rotateTraj(self, degree):  # erstellt rotierten Vektor um z Achse um Grad degree
         self.currentTraj = []
+        if not degree == 0:
+            degree = (360 * (math.pi) / 180) - degree
         rotationMatrix = np.array([(math.cos(degree), -math.sin(degree), 0, 0),
                                    (math.sin(degree), math.cos(degree), 0, 0),
                                    (0, 0, 1, 0),
