@@ -7,7 +7,7 @@ from jointdrive import JointDrive
 
 
 class Leg:
-    def __init__(self, legNumber, alphaID, betaID, gammaID):  # Konstruktor
+    def __init__(self, legNumber, alphaID, betaID, gammaID, ccwAlpha, ccwBeta, ccwGamma):  # Konstruktor
 
         # Member Variable erstellen
         self.servofinished = False
@@ -43,9 +43,9 @@ class Leg:
         print("LT: ", self.lt, self.ltSquare)
 
         self.jointDriveBroadcast = JointDrive(id=254)
-        self.jointDriveAlpha = JointDrive(id=alphaID, aOffset= 0, ccw = False)
-        self.jointDriveBeta = JointDrive(id=betaID, aOffset= 0.34, ccw = True)
-        self.jointDriveGamma = JointDrive(id=gammaID, aOffset= 1.09)
+        self.jointDriveAlpha = JointDrive(id=alphaID, aOffset= 0, ccw = ccwAlpha)
+        self.jointDriveBeta = JointDrive(id=betaID, aOffset= 0.34, ccw = ccwBeta)
+        self.jointDriveGamma = JointDrive(id=gammaID, aOffset= 1.09, ccw = ccwGamma)
         self.oldAngles = [self.jointDriveAlpha.getCurrentJointAngle(), self.jointDriveBeta.getCurrentJointAngle(),
                           self.jointDriveGamma.getCurrentJointAngle()]
         #self.setFootPosPoints(self.calcRotation_Z_Axis_OffsetBasisKoord([0.111,0, -0.113,1]))
@@ -196,7 +196,7 @@ class Leg:
         elif self.legNumber == 4:
 
             pos[0] = pos[0] + self.xB[3] - self.legDistances[0]
-            pos[1] -= self.yB[3]
+            pos[1] += self.yB[3]
             pos[2] += self.legDistances[1]
 
         elif self.legNumber == 5:
@@ -207,7 +207,7 @@ class Leg:
 
         elif self.legNumber == 6:
 
-            pos[0] = pos[0] - self.yB[5] - self.legDistances[0]
+            pos[0] = pos[0] + self.yB[5] - self.legDistances[0]
             pos[1] += self.xB[5]
             pos[2] += self.legDistances[1]
         return pos

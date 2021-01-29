@@ -14,12 +14,14 @@ from LegFF import Leg
 class Robot:
     # Roboter statische Parameter
     moveZMax = 0.03  # max. Höhe vom Arbeitsbereich nach Z
-    moveXMax = 0.06  # max. Durchmesser vom Arbeitsbereich nach X
+    moveXMax = 0.042  # max. Durchmesser vom Arbeitsbereich nach X
 
     def __init__(self, testMode=False):
 
         self.testMode = testMode  # Flag für Testmodus (Hexaplotter, DummyLegs)
-
+        z = 0.15
+        x = 0.169
+        y = 0.089
         if self.testMode:
             self.host = Host()
             # hexaplotter
@@ -38,13 +40,14 @@ class Robot:
             else:
                 self.host = Host()
             # sechs reale Beinobjekte mit entsprechenden Joint IDs erzeugen
-                self.legs = [Leg(1, 1, 3, 5), Leg(2, 2, 4, 6),
-                             Leg(3, 8, 10, 12), Leg(4, 14, 16, 18),
-                             Leg(5, 13, 15, 17), Leg(6, 7, 9, 11)]
-            #self.legs = [Leg(1, 3, 14, 15)]
+                #self.legs = [Leg(1, 1, 3, 5), Leg(2, 2, 4, 6),
+                 #            Leg(3, 8, 10, 12), Leg(4, 14, 16, 18),
+                 #            Leg(5, 13, 15, 17), Leg(6, 7, 9, 11)]
+            self.legs = [Leg(1, 1, 3, 5,False, True, False),Leg(2, 2, 4, 6, False, False, True),Leg(3, 8, 10, 12, False, True, False)
+                        ,Leg(4, 14, 16, 18, False, True, False),Leg(5, 13, 15, 17, False, False, True),Leg(6, 7, 9, 11, False, False, True)]
 
-        self.legStartPositions = [[0.16, -0.08, -0.15, 1], [0.16, 0.08, -0.15, 1], [0, 0.18, -0.15, 1],
-                                  [-0.16, 0.08, -0.15, 1], [-0.16, -0.08, -0.15, 1], [0, -0.18, -0.15, 1]]
+        self.legStartPositions = [[x, -y, -z, 1], [x, y, -z, 1], [0,x + 0.02, -z, 1],
+                                  [-x, y, -z, 1], [-x, -y, -z, 1], [0, -x - 0.02 , -z, 1]]
 
         self.cycleTime = 0.05  # Durchlaufzeit einer Iteration in Sekunden
         self.oneStepTime = 1.0  # Durchlaufzeit einer ganzen Bewegung durch die Trajektorienliste
@@ -71,7 +74,7 @@ class Robot:
         self.moveLegsToStartPosition()
 
         self.middleXZIndex = 0
-        self.stopPointDuration = 5  # Anzahl der Iterationen die beim ersten Stemmpunkt abwarten soll (Haltepunkt)
+        self.stopPointDuration = 1  # Anzahl der Iterationen die beim ersten Stemmpunkt abwarten soll (Haltepunkt)
         # Trajektorienliste mit Trajektorienpunkten erzeugen
         self.traj = self.createTraj(Robot.moveZMax)
         self.currentTraj = copy.copy(self.traj)
