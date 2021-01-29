@@ -159,7 +159,7 @@ class Gamepad:
 
 	def checkDelay(self):
 		if self.delayHelper > 0:
-			if self.delayHelper < 7:
+			if self.delayHelper < 16:
 				self.delayHelper = self.delayHelper + 1
 			else:
 				self.delayHelper = 0
@@ -194,10 +194,9 @@ class Gamepad:
 							self.mother.paceButton()
 							self.delayHelper = 1
 					else:
-						self.socket.send(msgpack.packb(buttons[somethingPressed]))
 						self.mother.write2(buttons[somethingPressed])
 				else:
-					self.socket.send(msgpack.packb("Unknown key pressed!"))
+					self.mother.write2("Unknown key pressed!")
 
 			self.speed, self.angle = self.axis(gamepad)
 
