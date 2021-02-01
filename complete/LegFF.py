@@ -10,7 +10,7 @@ class Leg:
     def __init__(self, legNumber, alphaID, betaID, gammaID, ccwAlpha, ccwBeta, ccwGamma):  # Konstruktor
 
         # Member Variable erstellen
-        self.servofinished = False
+        self.timefinished = time.time()
         self.legNumber = legNumber
         self.oldAngles = [0.0, 0.0, 0.0]  # Winkel zwischenspeichern (Geschwindigkeit der Servomotoren)
         self.lastPosition = [0, 0, 0, 1]
@@ -301,12 +301,15 @@ class Leg:
         angleSpeed = self.calcServoSpeed(newAngles, self.oldAngles, 254 * speed)
         #print(angleSpeed)
         #print(newAngles)
-        self.servofinished = False
-        self.jointDriveAlpha.setDesiredAngleSpeed(newAngles[0], speed=angleSpeed[0], trigger=True)
+
+
+
+        succes, move_time = self.jointDriveAlpha.setDesiredAngleSpeed(newAngles[0], speed=angleSpeed[0], trigger=True)
         self.jointDriveBeta.setDesiredAngleSpeed(newAngles[1], speed=angleSpeed[1], trigger=True)
         self.jointDriveGamma.setDesiredAngleSpeed(newAngles[2], speed=angleSpeed[2], trigger=True)
         self.jointDriveBroadcast.action();
         #print(self.lastPosition)
+        self.timefinished += move_time
 
         self.oldAngles = newAngles.copy()
 

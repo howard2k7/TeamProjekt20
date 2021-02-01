@@ -44,6 +44,7 @@ class JointDrive(ServoAx12a):
     def __init__(self, id, ccw=False, aOffset=0.0, aMax=math.pi * 2, aMin=-math.pi * 2):
 
         # id -> id of servo, cw -> rotating direction, aOffset -> angle offset,
+        self.old_angle = 0
         self.id = id
         self.counterClockWise = ccw
         self.aMax = JointDrive._ANGLE_RADIAN_MAX
@@ -148,9 +149,13 @@ class JointDrive(ServoAx12a):
         speed_in_ticks = self.__convertSpeedToTicks(speed)
         angle_in_ticks = self.__convertAngleToTicks(angle)
 
-        success = self.setGoalPosSpeed(angle_in_ticks, speed_in_ticks, trigger)
+        speed_in_rps = speed_in_ticks * 0.111 * 60 * 2 * math.pi   #360Grad / sec oder 2pi / sec
+        move_time = abs(angle - self.old_angle) / speed_in_rps
 
-        return success
+        success = self.setGoalPosSpeed(angle_in_ticks, speed_in_ticks, trigger)
+        self.old_angle = angle
+
+        return success, move_time
 
     # Set speed value of servo
     # speed -> angle speed in rpm
