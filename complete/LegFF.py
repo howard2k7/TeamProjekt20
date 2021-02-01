@@ -309,7 +309,7 @@ class Leg:
         self.jointDriveGamma.setDesiredAngleSpeed(newAngles[2], speed=angleSpeed[2], trigger=True)
         self.jointDriveBroadcast.action();
         #print(self.lastPosition)
-        self.timefinished += move_time
+        self.timefinished = time.time() + move_time
 
         self.oldAngles = newAngles.copy()
 
@@ -330,6 +330,9 @@ class Leg:
 
     def getlastPosition(self):
         return self.lastPosition
+
+    def getTimefinished(self):
+        return self.timefinished
 
 
 if __name__ == "__main__":

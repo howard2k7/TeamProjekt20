@@ -8,7 +8,7 @@ from mincom import MinCom
 from HexaplotSender import HexaplotSender
 from LegDummy import LegDummy
 from Robhost import Host
-from LegFF import Leg
+#from LegFF import Leg
 
 
 class Robot:
@@ -202,7 +202,18 @@ class Robot:
                             self.legs[i].setFootPosPoints(self.moveToPos(i, legATraj), self.velocity)
                     else:
                         if self.moveToPos(i, legBTraj) != (self.moveToPos(0, self.currentTraj[self.trajBIndex])):
-                            self.legs[i].setFootPosPoints(self.moveToPos(i, legBTraj), self.velocity)
+                            self.legs[i].setFootPosPoints(self.moveToPos(i, legBTraj), self.velocity)#
+
+            wait =True
+
+            while wait == True:
+                if self.legs[0].getTimefinished() <= time.time() and\
+                    self.legs[1].getTimefinished() <= time.time() and\
+                    self.legs[2].getTimefinished() <= time.time() and\
+                    self.legs[3].getTimefinished() <= time.time() and\
+                    self.legs[4].getTimefinished() <= time.time() and\
+                    self.legs[5].getTimefinished() <= time.time():
+                    wait = False
 
             #print(allCurrentPositions[0] == (self.moveToPos(0, self.currentTraj[self.trajBIndex])))
             #print("Move to: " + str(allCurrentPositions[0]))
@@ -219,7 +230,7 @@ class Robot:
             periodLength = tEnd - tStart
             #  print("periodLength: " + str(periodLength) + " (aus Zeile 198)")  # dient zu Testzwecken
             #  print("Iterate Durchlauf vorbei.")
-            time.sleep((self.cycleTime - periodLength) / self.velocity)
+            time.sleep(self.cycleTime - periodLength)
 
     def moveToPos(self, legIndex, traj):
         moveToPos = []
@@ -254,4 +265,4 @@ class Robot:
 
 
 if __name__ == "__main__":
-    rb = Robot(False)
+    rb = Robot(True)
