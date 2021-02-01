@@ -13,7 +13,6 @@
 
 '''
 
-import pygame as pg
 import zmq
 from threading import Thread
 import msgpack

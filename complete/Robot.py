@@ -8,7 +8,7 @@ from mincom import MinCom
 from HexaplotSender import HexaplotSender
 from LegDummy import LegDummy
 from Robhost import Host
-#from LegFF import Leg
+from LegFF import Leg
 
 
 class Robot:
@@ -43,8 +43,9 @@ class Robot:
                 #self.legs = [Leg(1, 1, 3, 5), Leg(2, 2, 4, 6),
                  #            Leg(3, 8, 10, 12), Leg(4, 14, 16, 18),
                  #            Leg(5, 13, 15, 17), Leg(6, 7, 9, 11)]
-            self.legs = [Leg(1, 1, 3, 5,False, True, False),Leg(2, 2, 4, 6, False, False, True),Leg(3, 8, 10, 12, False, True, False)
-                        ,Leg(4, 14, 16, 18, False, True, False),Leg(5, 13, 15, 17, False, False, True),Leg(6, 7, 9, 11, False, False, True)]
+            """self.legs = [Leg(1, 1, 3, 5,False, True, False),Leg(2, 2, 4, 6, False, False, True),Leg(3, 8, 10, 12, False, True, False)
+                        ,Leg(4, 14, 16, 18, False, True, False),Leg(5, 13, 15, 17, False, False, True),Leg(6, 7, 9, 11, False, False, True)]"""
+            self.legs = [Leg(1, 1, 3, 5, False, True, False)]
 
         self.legStartPositions = [[x, -y, -z, 1], [x, y, -z, 1], [0,x + 0.02, -z, 1],
                                   [-x, y, -z, 1], [-x, -y, -z, 1], [0, -x - 0.02 , -z, 1]]
@@ -207,12 +208,12 @@ class Robot:
             wait =True
 
             while wait == True:
-                if self.legs[0].getTimefinished() <= time.time() and\
-                    self.legs[1].getTimefinished() <= time.time() and\
-                    self.legs[2].getTimefinished() <= time.time() and\
-                    self.legs[3].getTimefinished() <= time.time() and\
-                    self.legs[4].getTimefinished() <= time.time() and\
-                    self.legs[5].getTimefinished() <= time.time():
+                if self.legs[0].getTimefinished() <= time.time(): #and\
+                    #self.legs[1].getTimefinished() <= time.time() and\
+                    #self.legs[2].getTimefinished() <= time.time() and\
+                    #self.legs[3].getTimefinished() <= time.time() and\
+                    #self.legs[4].getTimefinished() <= time.time() and\
+                    #self.legs[5].getTimefinished() <= time.time():
                     wait = False
 
             #print(allCurrentPositions[0] == (self.moveToPos(0, self.currentTraj[self.trajBIndex])))
@@ -230,7 +231,7 @@ class Robot:
             periodLength = tEnd - tStart
             #  print("periodLength: " + str(periodLength) + " (aus Zeile 198)")  # dient zu Testzwecken
             #  print("Iterate Durchlauf vorbei.")
-            time.sleep(self.cycleTime - periodLength)
+            #time.sleep(self.cycleTime - periodLength)
 
     def moveToPos(self, legIndex, traj):
         moveToPos = []
