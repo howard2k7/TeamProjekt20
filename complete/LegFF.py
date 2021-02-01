@@ -298,7 +298,8 @@ class Leg:
         #print(self.lastPosition)
         newAngles = self.invKinAlphaJoint(self.calcRotation_Z_Axis_OffsetAlphaKoord(footPosBasis))
 
-        angleSpeed = self.calcServoSpeed(newAngles, self.oldAngles, 254 * speed)
+        # 01.02.: ändern 254 * speed -> 113.5
+        angleSpeed = self.calcServoSpeed(newAngles, self.oldAngles, 113.5 * speed)
         #print(angleSpeed)
         #print(newAngles)
 

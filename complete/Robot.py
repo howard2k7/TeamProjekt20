@@ -45,7 +45,7 @@ class Robot:
                  #            Leg(5, 13, 15, 17), Leg(6, 7, 9, 11)]
             """self.legs = [Leg(1, 1, 3, 5,False, True, False),Leg(2, 2, 4, 6, False, False, True),Leg(3, 8, 10, 12, False, True, False)
                         ,Leg(4, 14, 16, 18, False, True, False),Leg(5, 13, 15, 17, False, False, True),Leg(6, 7, 9, 11, False, False, True)]"""
-            self.legs = [Leg(1, 1, 3, 5, False, True, False)]
+            self.legs = [Leg(1, 3, 14, 15, False, True, False)]
 
         self.legStartPositions = [[x, -y, -z, 1], [x, y, -z, 1], [0,x + 0.02, -z, 1],
                                   [-x, y, -z, 1], [-x, -y, -z, 1], [0, -x - 0.02 , -z, 1]]
@@ -205,7 +205,7 @@ class Robot:
                         if self.moveToPos(i, legBTraj) != (self.moveToPos(0, self.currentTraj[self.trajBIndex])):
                             self.legs[i].setFootPosPoints(self.moveToPos(i, legBTraj), self.velocity)#
 
-            wait =True
+            wait = True
 
             while wait == True:
                 if self.legs[0].getTimefinished() <= time.time(): #and\
@@ -266,4 +266,4 @@ class Robot:
 
 
 if __name__ == "__main__":
-    rb = Robot(True)
+    rb = Robot(False)
