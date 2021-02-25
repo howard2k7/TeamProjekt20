@@ -175,7 +175,7 @@ class Robot:
                 # Beinobjekte übergeben
                 # print(allCurrentPositions)
                 for i in range(len(self.legs)):
-                    if (i % 2) != 0:
+                    if (i % 2) == 0:
                         if self.moveToPos(i, legATraj) != (self.moveToPos(0, self.currentTraj[self.trajAIndex])):  # Überprüft ob nächster Punkt = Haltepunkt, falls ja dann überspringe den Punkt
                             self.legs[i].setFootPosPoints(self.moveToPos(i, legATraj), self.velocity)
                     else:
