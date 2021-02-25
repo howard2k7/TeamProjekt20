@@ -57,9 +57,8 @@ class Robot:
         self.velocity = 0.0  # Geschwindigkeit (0.0 0.5 1.0)
         self.degree = 0  # Grad der Bewegung/Trajektorie in Radiant (für Bewegungsänderung)
         self.currentZ = Robot.moveZMax
-        # self.currentX = 0
 
-        self.cachedCommands = []  # Kommandos cachen zur späteren Überprüfung (degree [0], velocity [1], maxZ [2])
+        self.cachedCommands = []  # Kommandos cachen zur späteren Überprüfung (degree [0], velocity [1], height [2])
 
         if self.testMode:
             startPoints = []
@@ -71,15 +70,14 @@ class Robot:
         # Setze Beine in die Anfangsposition (Stemmungsposition, Schwingungsposition)
         self.moveLegsToStartPosition()
 
-        self.middleXZIndex = 0
+        self.trajAIndex = int(self.coordPoints / 2) - 1  # Schwingungsanfangsindex
+        self.trajBIndex = int(self.coordPoints / 2) + 1   # Stemmungsanfangsindex
+
         self.stopPointDuration = 1  # Anzahl der Iterationen die beim ersten Stemmpunkt abwarten soll (Haltepunkt)
 
         # statische Trajektorienliste mit Trajektorienpunkten erzeugen
         self.traj = self.createTraj(Robot.moveZMax)
         self.currentTraj = copy.copy(self.traj)  # Aktuelle abgelaufene Trajektorie
-
-        self.trajAIndex = -1  # Schwingungsanfangsindex
-        self.trajBIndex = math.floor(len(self.currentTraj) / 2) - 1  # Stemmungsanfangsindex
 
         time.sleep(1)
 
@@ -100,7 +98,6 @@ class Robot:
         trajectory = []
         xPoints = int(self.coordPoints / 2) + 1
         xzPoints = int(self.coordPoints / 2) - 1
-        self.middleXZIndex = math.ceil(xzPoints / 2)
         # Erstelle Trajektorien für die Schwingphase
         for i in range(1, xzPoints + 1):
             x = -Robot.moveXMax / 2 + i * (Robot.moveXMax / (xzPoints + 1))
@@ -138,8 +135,9 @@ class Robot:
                         self.rotateTraj(self.degree)
                     # print("Height: " + str(self.currentZ))
                 # Überprüfe, ob aktuelle Leg Position in der Mitte der Trajektorie liegt,um Trajektorie um Z zu rotieren
-                if (self.cachedCommands[1] != self.degree) and (
-                        (self.trajAIndex == (self.middleXZIndex - 1) or self.trajBIndex == (self.middleXZIndex - 1))):
+                if self.cachedCommands[1] != self.degree and (
+                        self.currentTraj[self.trajAIndex][0] == 0 or
+                        self.currentTraj[self.trajBIndex][0] == 0):
                     self.degree = self.cachedCommands[1]
                     self.rotateTraj(self.degree)
                     """print(
@@ -233,4 +231,4 @@ class Robot:
 
 
 if __name__ == "__main__":
-    rb = Robot(False)
+    rb = Robot(True)
