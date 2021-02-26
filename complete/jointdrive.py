@@ -149,9 +149,10 @@ class JointDrive(ServoAx12a):
         speed_in_ticks = self.__convertSpeedToTicks(speed)
         angle_in_ticks = self.__convertAngleToTicks(angle)
 
-        speed_in_rps = speed_in_ticks * 0.111 * 60 * 2 * math.pi   #360Grad / sec oder 2pi / sec
-        move_time = abs(angle - self.old_angle) / speed_in_rps
+        ticks_move = abs(self.__convertAngleToTicks(angle) - self.__convertAngleToTicks(self.old_angle))
+        move_time =  (ticks_move / (speed*1228.8/60)) #+ 0.02
 
+        #2322.21
         success = self.setGoalPosSpeed(angle_in_ticks, speed_in_ticks, trigger)
         self.old_angle = angle
 
