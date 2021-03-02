@@ -51,7 +51,7 @@ class Robot:
                                   [-x, y, -z, 1], [-x, -y, -z, 1], [0, -x - 0.02, -z, 1]]
 
         self.cycleTime = 0.05  # Durchlaufzeit einer Iteration in Sekunden
-        self.coordPoints = 20  # Anzahl Punkte die der Roboter ablaufen soll
+        self.coordPoints = 4  # Anzahl Punkte die der Roboter ablaufen soll
 
         # Roboter veränderbare Parameter
         self.velocity = 0.0  # Geschwindigkeit (0.0 0.5 1.0)
