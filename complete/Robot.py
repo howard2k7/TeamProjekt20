@@ -4,6 +4,7 @@ import time
 import numpy as np
 import sys
 
+from mincom import MinCom
 from HexaplotSender import HexaplotSender
 from LegDummy import LegDummy
 from Robhost import Host
@@ -12,7 +13,7 @@ from LegFF import Leg
 
 class Robot:
     # Roboter statische Parameter
-    moveZMax = 0.08  # max. Höhe vom Arbeitsbereich nach Z
+    moveZMax = 0.03  # max. Höhe vom Arbeitsbereich nach Z
     moveXMax = 0.042  # max. Durchmesser vom Arbeitsbereich nach X
 
     def __init__(self, testMode=False):
@@ -31,34 +32,36 @@ class Robot:
             self.legs = [LegDummy(1, 1, 3, 5), LegDummy(2, 2, 4, 6),
                          LegDummy(3, 8, 10, 12), LegDummy(4, 14, 16, 18),
                          LegDummy(5, 13, 15, 17), LegDummy(6, 7, 9, 11)]
-            # self.legs = [LegDummy(1, 1, 3, 5)]
+            #self.legs = [LegDummy(1, 1, 3, 5)]
         else:
             # Kommunikationsobjekt erzeugen
             if len(sys.argv) > 1:  # or ==3
-                # TCP/UDP + Port als Argumente übergeben
                 self.host = Host(str(sys.argv[1]), str(sys.argv[2]))
             else:
                 self.host = Host()
             # sechs reale Beinobjekte mit entsprechenden Joint IDs erzeugen
-            self.legs = [Leg(1, 1, 3, 5, False, True, False), Leg(2, 2, 4, 6, False, False, True),
-                         Leg(3, 8, 10, 12, False, True, False), Leg(4, 14, 16, 18, False, True, False),
-                         Leg(5, 13, 15, 17, False, False, True), Leg(6, 7, 9, 11, False, False, True)]
+                self.legs = [Leg(1, 1, 3, 5), Leg(2, 2, 4, 6),
+                             Leg(3, 8, 10, 12), Leg(4, 14, 16, 18),
+                             Leg(5, 13, 15, 17), Leg(6, 7, 9, 11)]
+            """self.legs = [Leg(1, 1, 3, 5,False, True, False),Leg(2, 2, 4, 6, False, False, True),Leg(3, 8, 10, 12, False, True, False)
+                        ,Leg(4, 14, 16, 18, False, True, False),Leg(5, 13, 15, 17, False, False, True),Leg(6, 7, 9, 11, False, False, True)]"""
+            #self.legs = [Leg(1, 3, 14, 15, False, True, False)]
 
-            # self.legs = [Leg(1, 3, 14, 15, False, True, False)]
-
-        #  Wähle Startpunkte für jedes Bein
-        self.legStartPositions = [[x, -y, -z, 1], [x, y, -z, 1], [0, x + 0.02, -z, 1],
-                                  [-x, y, -z, 1], [-x, -y, -z, 1], [0, -x - 0.02, -z, 1]]
+        self.legStartPositions = [[x, -y, -z, 1], [x, y, -z, 1], [0,x + 0.02, -z, 1],
+                                  [-x, y, -z, 1], [-x, -y, -z, 1], [0, -x - 0.02 , -z, 1]]
 
         self.cycleTime = 0.05  # Durchlaufzeit einer Iteration in Sekunden
-        self.coordPoints = 20  # Anzahl Punkte die der Roboter ablaufen soll
+        self.oneStepTime = 1.0  # Durchlaufzeit einer ganzen Bewegung durch die Trajektorienliste
+        self.coordPoints = math.floor(self.oneStepTime / self.cycleTime)
+        #  self.coordPoints = 510 manuell Anzahl Punkte, die Roboter laufen soll, setzten für Testzwecke
 
         # Roboter veränderbare Parameter
         self.velocity = 0.0  # Geschwindigkeit (0.0 0.5 1.0)
         self.degree = 0  # Grad der Bewegung/Trajektorie in Radiant (für Bewegungsänderung)
         self.currentZ = Robot.moveZMax
+        # self.currentX = 0
 
-        self.cachedCommands = []  # Kommandos cachen zur späteren Überprüfung (degree [0], velocity [1], height [2])
+        self.cachedCommands = []  # Kommandos cachen zur späteren Überprüfung (degree [0], velocity [1], maxZ [2])
 
         if self.testMode:
             startPoints = []
@@ -67,17 +70,21 @@ class Robot:
             self.hs.send_points(startPoints)
             time.sleep(2)
 
+        time.sleep(1)
         # Setze Beine in die Anfangsposition (Stemmungsposition, Schwingungsposition)
         self.moveLegsToStartPosition()
 
-        self.trajAIndex = int(self.coordPoints / 2) - 1  # Schwingungsanfangsindex
-        self.trajBIndex = int(self.coordPoints / 2) + 1   # Stemmungsanfangsindex
-
+        self.middleXZIndex = 0
         self.stopPointDuration = 1  # Anzahl der Iterationen die beim ersten Stemmpunkt abwarten soll (Haltepunkt)
-
-        # statische Trajektorienliste mit Trajektorienpunkten erzeugen
+        # Trajektorienliste mit Trajektorienpunkten erzeugen
         self.traj = self.createTraj(Robot.moveZMax)
-        self.currentTraj = copy.copy(self.traj)  # Aktuelle abgelaufene Trajektorie
+        self.currentTraj = copy.copy(self.traj)
+
+        #print("Folgende Trajektorie wird angefahren: " + str(self.traj))
+        # print("Trajektorienlänge: " + str(len(self.traj)))
+
+        self.trajAIndex = -1  # Schwingungsanfangsindex
+        self.trajBIndex = math.floor(len(self.currentTraj) / 2) - 1  # Stemmungsanfangsindex
 
         time.sleep(1)
 
@@ -87,30 +94,39 @@ class Robot:
         newPos = []
         for i in range(len(self.legs)):
             tmp = copy.copy(self.legStartPositions[i])
-            if (i % 2) == 0:  # Schwingbeine um z verschieben
-                tmp[2] += Robot.moveZMax
-            newPos.append(tmp)
+            if (i % 2) == 0:  # [0, 0, 0, 1]
+                tmp[0] += (Robot.moveXMax / 2)
+            else:
+                tmp[0] -= (Robot.moveXMax / 2)
             self.legs[i].setFootPosPoints(tmp)
-        if self.testMode:  # Startposition an Hexaplotter senden
+            newPos.append(tmp)
+        if self.testMode:
             self.hs.send_points(newPos)
 
-    def createTraj(self, newZ):
+    def createTraj(self, maxZ):
         trajectory = []
+        if self.coordPoints % 4 != 0:
+            raise ValueError("illegal Coordpoints")
         xPoints = int(self.coordPoints / 2) + 1
         xzPoints = int(self.coordPoints / 2) - 1
-        # Erstelle Trajektorien für die Schwingphase
+        self.middleXZIndex = math.ceil(xzPoints / 2)
+        # print(self.middleXZIndex)
+        # xMax/2 = 0.03 m
+        # zMax = 0.03 m
+
+        # Erstelle Punkte auf der mit x,z Koordinaten (Schwingphase)
         for i in range(1, xzPoints + 1):
             x = -Robot.moveXMax / 2 + i * (Robot.moveXMax / (xzPoints + 1))
-            z = -(newZ * x ** 2 * 4) / (Robot.moveXMax ** 2) + newZ
+            z = -maxZ / math.pow(Robot.moveXMax / 2, 2) * x ** 2 + maxZ
             trajectory.append([x, 0.0, z, 1])
-        # Erstelle Trajektorien für die Stemmphase
+        # Erstelle Punkte die auf x Achse liegen (Stemmphase)
         for i in range(0, xPoints):
             x = Robot.moveXMax / 2 - i * (Robot.moveXMax / (xPoints - 1))
             if i == 0:  # Haltepunkt für die Stemmphase
                 for j in range(self.stopPointDuration):
                     trajectory.append([x, 0.0, 0.0, 1])
             trajectory.append([x, 0.0, 0.0, 1])
-        #  print(trajectory)
+        # print("Folgende Trajektorie wurde erstellt: " + str(trajectory))
         return trajectory
 
     def iterate(self):
@@ -119,6 +135,8 @@ class Robot:
 
             self.getNewCommands()  # Kommunikationsobjekt abfragen
             # wenn neue Kommandos dann ggf. (Richtungsänderung, Höhenverstellung, Geschwindigkeitsreduzierung/erhöhung)
+            # -> Hoehenverstellung ueber self.extremeZ
+            # Trajektorie aendern wenn ein Bein in der Startposition
 
             if self.cachedCommands:
                 if self.velocity != self.cachedCommands[0]:
@@ -133,11 +151,11 @@ class Robot:
                     self.currentTraj = copy.copy(self.traj)
                     if self.degree != 0:
                         self.rotateTraj(self.degree)
+                    #print("Aktuelle Trajektorie mit neuer Höhe bei: " + str(self.currentZ) + str(self.currentTraj))
                     # print("Height: " + str(self.currentZ))
                 # Überprüfe, ob aktuelle Leg Position in der Mitte der Trajektorie liegt,um Trajektorie um Z zu rotieren
-                if self.cachedCommands[1] != self.degree and (
-                        self.currentTraj[self.trajAIndex][0] == 0 or
-                        self.currentTraj[self.trajBIndex][0] == 0):
+                if (self.cachedCommands[1] != self.degree) and (
+                        (self.trajAIndex == (self.middleXZIndex - 1) or self.trajBIndex == (self.middleXZIndex - 1))):
                     self.degree = self.cachedCommands[1]
                     self.rotateTraj(self.degree)
                     """print(
@@ -155,48 +173,65 @@ class Robot:
             # schwingendes Bein und einen für
             # stemmendes Bein aus der einzigen
             # Punkteliste holen
+            legATraj = self.currentTraj[self.trajAIndex + 1]
+            legBTraj = self.currentTraj[self.trajBIndex + 1]
+            # print(legATraj)
+            # print(legBTraj)
 
-            # Überprüfe ob die berechnete Zeit für eine Bewegung abgelaufen ist
-            if self.testMode or \
-                    (self.legs[0].getTimefinished() <= time.time() and
-                     self.legs[1].getTimefinished() <= time.time() and
-                     self.legs[2].getTimefinished() <= time.time() and
-                     self.legs[3].getTimefinished() <= time.time() and
-                     self.legs[4].getTimefinished() <= time.time() and
-                     self.legs[5].getTimefinished() <= time.time()):
-                legATraj = self.currentTraj[self.trajAIndex + 1]
-                legBTraj = self.currentTraj[self.trajBIndex + 1]
-                # print(legATraj)
-                # print(legBTraj)
-
-                # Punkte zur Ausführung an die
-                # Beinobjekte übergeben
-                # print(allCurrentPositions)
+            # Punkte zur Ausführung an die
+            # Beinobjekte übergeben
+            # print(allCurrentPositions)
+            if self.testMode:
+                allCurrentPositions = []
                 for i in range(len(self.legs)):
-                    if (i % 2) == 0:
-                        if self.moveToPos(i, legATraj) != (self.moveToPos(0, self.currentTraj[self.trajAIndex])):  # Überprüft ob nächster Punkt = Haltepunkt, falls ja dann überspringe den Punkt
+                    if (i % 2) != 0:
+                        allCurrentPositions.append(self.moveToPos(i, legATraj))
+                    else:
+                        allCurrentPositions.append(self.moveToPos(i, legBTraj))
+                for i in range(len(self.legs)):
+                    if (i % 2) != 0:
+                        if allCurrentPositions[i] == (self.moveToPos(0, self.currentTraj[self.trajAIndex])):
+                            print("Bein hält!")
+                    else:
+                        if allCurrentPositions[i] == (self.moveToPos(0, self.currentTraj[self.trajBIndex])):
+                            print("Bein hält!")
+                self.hs.send_points(allCurrentPositions)  # sende an plotter
+            else:
+                for i in range(len(self.legs)):
+                    if (i % 2) != 0:
+                        if self.moveToPos(i, legATraj) != (self.moveToPos(0, self.currentTraj[self.trajAIndex])):
                             self.legs[i].setFootPosPoints(self.moveToPos(i, legATraj), self.velocity)
                     else:
                         if self.moveToPos(i, legBTraj) != (self.moveToPos(0, self.currentTraj[self.trajBIndex])):
                             self.legs[i].setFootPosPoints(self.moveToPos(i, legBTraj), self.velocity)
 
-                # print(allCurrentPositions[0] == (self.moveToPos(0, self.currentTraj[self.trajBIndex])))
-                # print("Move to: " + str(allCurrentPositions[0]))
-                # print("Current Trajectory Point: " + str((self.moveToPos(0, self.currentTraj[self.trajBIndex]))))
+            wait = True
 
-                # Stemmtrajektorienpunkt an die Orte
-                # der drei stemmenden Beine verschieben
-                # Schwingtrajektorienpunkt an die Orte
-                # der drei schwingenden Beine verschieben
-                self.trajAIndex += 1
-                self.trajBIndex += 1
+            while wait == True:
+                if self.legs[0].getTimefinished() <= time.time() and\
+                    self.legs[1].getTimefinished() <= time.time() and\
+                    self.legs[2].getTimefinished() <= time.time() and\
+                    self.legs[3].getTimefinished() <= time.time() and\
+                    self.legs[4].getTimefinished() <= time.time() and\
+                    self.legs[5].getTimefinished() <= time.time():
+                    wait = False
 
-            tEnd = time.perf_counter()
-            periodLength = tEnd - tStart
-            # print("periodLength: " + str(periodLength))
+            #print(allCurrentPositions[0] == (self.moveToPos(0, self.currentTraj[self.trajBIndex])))
+            #print("Move to: " + str(allCurrentPositions[0]))
+            #print("Current Trajectory Point: " + str((self.moveToPos(0, self.currentTraj[self.trajBIndex]))))
 
-            # Warte Taktzeit ab...
-            time.sleep(self.cycleTime - periodLength)
+            # Stemmtrajektorienpunkt an die Orte
+            # der drei stemmenden Beine verschieben
+            # Schwingtrajektorienpunkt an die Orte
+            # der drei schwingenden Beine verschieben
+            self.trajAIndex += 1
+            self.trajBIndex += 1
+
+            #tEnd = time.perf_counter()
+            #periodLength = tEnd - tStart
+            #  print("periodLength: " + str(periodLength) + " (aus Zeile 198)")  # dient zu Testzwecken
+            #  print("Iterate Durchlauf vorbei.")
+            #time.sleep(self.cycleTime - periodLength)
 
     def moveToPos(self, legIndex, traj):
         moveToPos = []
@@ -216,12 +251,12 @@ class Robot:
                 any(isinstance(x, str) for x in commands)):  # keine neuen Kommandos oder ungültig
             return
         self.cachedCommands = commands
-        # print(commands)
+        #print(commands)
 
     def rotateTraj(self, degree):  # erstellt rotierten Vektor um z Achse um Grad degree
-        self.currentTraj = []  # Aktuelle Trajektorie leeren
-        if not degree == 0:  # Umrechnung für Controller
-            degree = (360 * math.pi / 180) - degree
+        self.currentTraj = []
+        if not degree == 0:
+            degree = (360 * (math.pi) / 180) - degree
         rotationMatrix = np.array([(math.cos(degree), -math.sin(degree), 0, 0),
                                    (math.sin(degree), math.cos(degree), 0, 0),
                                    (0, 0, 1, 0),
