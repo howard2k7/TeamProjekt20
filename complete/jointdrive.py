@@ -150,6 +150,8 @@ class JointDrive(ServoAx12a):
         angle_in_ticks = self.__convertAngleToTicks(angle)
 
         ticks_move = abs(self.__convertAngleToTicks(angle) - self.__convertAngleToTicks(self.old_angle))
+        if speed == 0:
+            speed = 0.1
         move_time =  (ticks_move / (speed*1228.8/60)) #+ 0.02
 
         #2322.21
