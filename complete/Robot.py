@@ -12,7 +12,7 @@ from LegFF import Leg
 
 class Robot:
     # Roboter statische Parameter
-    moveZMax = 0.09  # max. Höhe vom Arbeitsbereich nach Z
+    moveZMax = 0.10  # max. Höhe vom Arbeitsbereich nach Z
     moveXMax = 0.042  # max. Durchmesser vom Arbeitsbereich nach X
 
     def __init__(self, testMode=False):
