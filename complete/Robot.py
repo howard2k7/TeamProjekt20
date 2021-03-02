@@ -231,4 +231,4 @@ class Robot:
 
 
 if __name__ == "__main__":
-    rb = Robot(True)
+    rb = Robot(False)
