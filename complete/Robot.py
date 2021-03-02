@@ -98,7 +98,7 @@ class Robot:
 
     def createTraj(self, newZ):
         trajectory = []
-        if len(self.cachedCommands) == 0 or not self.cachedCommands[2] == 1.0:
+        if len(self.cachedCommands) == 0 or not self.cachedCommands[2] == 1:
             xPoints = int(self.coordPoints / 2) + 1
             xzPoints = int(self.coordPoints / 2) - 1
             self.middleXZIndex = math.ceil(xzPoints / 2)
@@ -240,7 +240,7 @@ class Robot:
                 any(isinstance(x, str) for x in commands)):  # keine neuen Kommandos oder ungültig
             return
         self.cachedCommands = commands
-        # print(commands)
+        print(commands)
 
     def rotateTraj(self, degree):  # erstellt rotierten Vektor um z Achse um Grad degree
         self.currentTraj = []  # Aktuelle Trajektorie leeren
