@@ -295,3 +295,6 @@ class Leg:
     def getlastPosition(self):
         return self.lastPosition
 
+    def getTimefinished(self):
+        return self.timefinished
+

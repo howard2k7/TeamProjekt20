@@ -1,7 +1,6 @@
 # Teamprojekt20
 Teamprojekt WS20_21 Team Rot
 
-
 ## TODO List
 
 
