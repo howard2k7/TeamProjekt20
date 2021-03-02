@@ -98,24 +98,25 @@ class Robot:
 
     def createTraj(self, newZ):
         trajectory = []
-        if len(self.cachedCommands) == 0 or not self.cachedCommands[2] == 1:
-            xPoints = int(self.coordPoints / 2) + 1
-            xzPoints = int(self.coordPoints / 2) - 1
-            self.middleXZIndex = math.ceil(xzPoints / 2)
-            # Erstelle Trajektorien für die Schwingphase
-            for i in range(1, xzPoints + 1):
-                x = -Robot.moveXMax / 2 + i * (Robot.moveXMax / (xzPoints + 1))
-                z = -(newZ * x ** 2 * 4) / (Robot.moveXMax ** 2) + newZ
-                trajectory.append([x, 0.0, z, 1])
-            # Erstelle Trajektorien für die Stemmphase
-            for i in range(0, xPoints):
-                x = Robot.moveXMax / 2 - i * (Robot.moveXMax / (xPoints - 1))
-                if i == 0:  # Haltepunkt für die Stemmphase
-                    for j in range(self.stopPointDuration):
-                        trajectory.append([x, 0.0, 0.0, 1])
-                trajectory.append([x, 0.0, 0.0, 1])
+        xPoints = int(self.coordPoints / 2) + 1
+        xzPoints = int(self.coordPoints / 2) - 1
+        self.middleXZIndex = math.ceil(xzPoints / 2)
+        # Erstelle Trajektorien für die Schwingphase
+        for i in range(1, xzPoints + 1):
+            x = -Robot.moveXMax / 2 + i * (Robot.moveXMax / (xzPoints + 1))
+            z = -(newZ * x ** 2 * 4) / (Robot.moveXMax ** 2) + newZ
+            if self.cachedCommands[2] == 1:
+                z = math.sqrt(Robot.moveXMax ** 2 - x ** 2) + Robot.moveZMax - Robot.moveXMax
+            trajectory.append([x, 0.0, z, 1])
+        # Erstelle Trajektorien für die Stemmphase
+        for i in range(0, xPoints):
+            x = Robot.moveXMax / 2 - i * (Robot.moveXMax / (xPoints - 1))
+            if i == 0:  # Haltepunkt für die Stemmphase
+                for j in range(self.stopPointDuration):
+                    trajectory.append([x, 0.0, 0.0, 1])
+            trajectory.append([x, 0.0, 0.0, 1])
         #  print(trajectory)
-        else:
+        """else:
             zPoints = 5
             xPoints = 6
             self.middleXZIndex = 9
@@ -134,7 +135,7 @@ class Robot:
                 trajectory.append([Robot.moveXMax / 2, 0, i, 1])
             for i in reversed(x):
                 trajectory.append([i, 0, 0, 1])
-            print(trajectory)
+            print(trajectory)"""
 
         return trajectory
 
