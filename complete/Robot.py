@@ -98,22 +98,44 @@ class Robot:
 
     def createTraj(self, newZ):
         trajectory = []
-        xPoints = int(self.coordPoints / 2) + 1
-        xzPoints = int(self.coordPoints / 2) - 1
-        self.middleXZIndex = math.ceil(xzPoints / 2)
-        # Erstelle Trajektorien für die Schwingphase
-        for i in range(1, xzPoints + 1):
-            x = -Robot.moveXMax / 2 + i * (Robot.moveXMax / (xzPoints + 1))
-            z = -(newZ * x ** 2 * 4) / (Robot.moveXMax ** 2) + newZ
-            trajectory.append([x, 0.0, z, 1])
-        # Erstelle Trajektorien für die Stemmphase
-        for i in range(0, xPoints):
-            x = Robot.moveXMax / 2 - i * (Robot.moveXMax / (xPoints - 1))
-            if i == 0:  # Haltepunkt für die Stemmphase
-                for j in range(self.stopPointDuration):
-                    trajectory.append([x, 0.0, 0.0, 1])
-            trajectory.append([x, 0.0, 0.0, 1])
+        if len(self.cachedCommands) == 0 or not self.cachedCommands[2] == 1.0:
+            xPoints = int(self.coordPoints / 2) + 1
+            xzPoints = int(self.coordPoints / 2) - 1
+            self.middleXZIndex = math.ceil(xzPoints / 2)
+            # Erstelle Trajektorien für die Schwingphase
+            for i in range(1, xzPoints + 1):
+                x = -Robot.moveXMax / 2 + i * (Robot.moveXMax / (xzPoints + 1))
+                z = -(newZ * x ** 2 * 4) / (Robot.moveXMax ** 2) + newZ
+                trajectory.append([x, 0.0, z, 1])
+            # Erstelle Trajektorien für die Stemmphase
+            for i in range(0, xPoints):
+                x = Robot.moveXMax / 2 - i * (Robot.moveXMax / (xPoints - 1))
+                if i == 0:  # Haltepunkt für die Stemmphase
+                    for j in range(self.stopPointDuration):
+                        trajectory.append([x, 0.0, 0.0, 1])
+                trajectory.append([x, 0.0, 0.0, 1])
         #  print(trajectory)
+        else:
+            zPoints = 5
+            xPoints = 6
+            self.middleXZIndex = 9
+            z = []
+            x = []
+            for i in range(zPoints):
+                z.append(Robot.moveXMax / 2 - i * (Robot.moveXMax / (zPoints - 1)))
+            for i in range(xPoints):
+                x.append(Robot.moveXMax / 2 - i * (Robot.moveXMax / (xPoints - 1)))
+
+            for i in z:
+                trajectory.append([-Robot.moveXMax / 2, 0, i, 1])
+            for i in x:
+                trajectory.append([i, 0, Robot.moveZMax, 1])
+            for i in reversed(z):
+                trajectory.append([Robot.moveXMax / 2, 0, i, 1])
+            for i in reversed(x):
+                trajectory.append([i, 0, 0, 1])
+            print(trajectory)
+
         return trajectory
 
     def iterate(self):
