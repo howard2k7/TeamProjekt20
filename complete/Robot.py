@@ -105,8 +105,9 @@ class Robot:
         for i in range(1, xzPoints + 1):
             x = -Robot.moveXMax / 2 + i * (Robot.moveXMax / (xzPoints + 1))
             z = -(newZ * x ** 2 * 4) / (Robot.moveXMax ** 2) + newZ
-            if self.cachedCommands[2] == 1:
-                z = math.sqrt(Robot.moveXMax ** 2 - x ** 2) + Robot.moveZMax - Robot.moveXMax
+            if len(self.cachedCommands) != 0:
+                if self.cachedCommands[2] == 1:
+                    z = math.sqrt(Robot.moveXMax ** 2 - x ** 2) + Robot.moveZMax - Robot.moveXMax
             trajectory.append([x, 0.0, z, 1])
         # Erstelle Trajektorien für die Stemmphase
         for i in range(0, xPoints):
