@@ -32,7 +32,7 @@ class Robot:
             self.legs = [LegDummy(1, 1, 3, 5), LegDummy(2, 2, 4, 6),
                          LegDummy(3, 8, 10, 12), LegDummy(4, 14, 16, 18),
                          LegDummy(5, 13, 15, 17), LegDummy(6, 7, 9, 11)]
-            self.legs = [LegDummy(1, 1, 3, 5)]
+            # self.legs = [LegDummy(1, 1, 3, 5)]
         else:
             # Kommunikationsobjekt erzeugen
             if len(sys.argv) > 1:  # or ==3
@@ -41,11 +41,11 @@ class Robot:
             else:
                 self.host = Host()
             # sechs reale Beinobjekte mit entsprechenden Joint IDs erzeugen
-           # self.legs = [Leg(1, 1, 3, 5, False, True, False), Leg(2, 2, 4, 6, False, False, True),
-            #             Leg(3, 8, 10, 12, False, True, False), Leg(4, 14, 16, 18, False, True, False),
-              #           Leg(5, 13, 15, 17, False, False, True), Leg(6, 7, 9, 11, False, False, True)]
+            self.legs = [Leg(1, 1, 3, 5, False, True, False), Leg(2, 2, 4, 6, False, False, True),
+                         Leg(3, 8, 10, 12, False, True, False), Leg(4, 14, 16, 18, False, True, False),
+                         Leg(5, 13, 15, 17, False, False, True), Leg(6, 7, 9, 11, False, False, True)]
 
-            self.legs = [Leg(1, 3, 14, 15, False, True, False)]
+            # self.legs = [Leg(1, 3, 14, 15, False, True, False)]
 
         #  Wähle Startpunkte für jedes Bein
         self.legStartPositions = [[x, -y, -z, 1], [x, y, -z, 1], [0, x + 0.02, -z, 1],
@@ -195,32 +195,38 @@ class Robot:
             # Punkteliste holen
 
             # Überprüfe ob die berechnete Zeit für eine Bewegung abgelaufen ist
-            legATraj = self.currentTraj[self.trajAIndex + 1]
-            legBTraj = self.currentTraj[self.trajBIndex + 1]
-            # print(legATraj)
-            # print(legBTraj)
+            if self.testMode or (self.legs[0].getTimefinished() <= time.time() and
+                                 self.legs[1].getTimefinished() <= time.time() and
+                                 self.legs[2].getTimefinished() <= time.time() and
+                                 self.legs[3].getTimefinished() <= time.time() and
+                                 self.legs[4].getTimefinished() <= time.time() and
+                                 self.legs[5].getTimefinished() <= time.time()):
+                legATraj = self.currentTraj[self.trajAIndex + 1]
+                legBTraj = self.currentTraj[self.trajBIndex + 1]
+                # print(legATraj)
+                # print(legBTraj)
 
-            # Punkte zur Ausführung an die
-            # Beinobjekte übergeben
-            points = []  # tmp Liste für Hexaplotter
-            for i in range(len(self.legs)):
-                if (i % 2) != 0:
-                    # Überprüft ob nächster Punkt = Haltepunkt, falls ja dann überspringe Punkt
-                    if self.moveToPos(i, legATraj) != (self.moveToPos(0, self.currentTraj[self.trajAIndex])):
-                        self.legs[i].setFootPosPoints(self.moveToPos(i, legATraj), self.velocity)
-                        points.append(self.moveToPos(i, legATraj))
-                else:
-                    if self.moveToPos(i, legBTraj) != (self.moveToPos(0, self.currentTraj[self.trajBIndex])):
-                        self.legs[i].setFootPosPoints(self.moveToPos(i, legBTraj), self.velocity)
-                        points.append(self.moveToPos(i, legBTraj))
-            if self.testMode:
-                self.hs.send_points(points)
-            # Stemmtrajektorienpunkt an die Orte
-            # der drei stemmenden Beine verschieben
-            # Schwingtrajektorienpunkt an die Orte
-            # der drei schwingenden Beine verschieben
-            self.trajAIndex += 1
-            self.trajBIndex += 1
+                # Punkte zur Ausführung an die
+                # Beinobjekte übergeben
+                points = []  # tmp Liste für Hexaplotter
+                for i in range(len(self.legs)):
+                    if (i % 2) != 0:
+                        # Überprüft ob nächster Punkt = Haltepunkt, falls ja dann überspringe Punkt
+                        if self.moveToPos(i, legATraj) != (self.moveToPos(0, self.currentTraj[self.trajAIndex])):
+                            self.legs[i].setFootPosPoints(self.moveToPos(i, legATraj), self.velocity)
+                            points.append(self.moveToPos(i, legATraj))
+                    else:
+                        if self.moveToPos(i, legBTraj) != (self.moveToPos(0, self.currentTraj[self.trajBIndex])):
+                            self.legs[i].setFootPosPoints(self.moveToPos(i, legBTraj), self.velocity)
+                            points.append(self.moveToPos(i, legBTraj))
+                if self.testMode:
+                    self.hs.send_points(points)
+                # Stemmtrajektorienpunkt an die Orte
+                # der drei stemmenden Beine verschieben
+                # Schwingtrajektorienpunkt an die Orte
+                # der drei schwingenden Beine verschieben
+                self.trajAIndex += 1
+                self.trajBIndex += 1
 
             tEnd = time.perf_counter()
             periodLength = tEnd - tStart
@@ -247,7 +253,7 @@ class Robot:
                 any(isinstance(x, str) for x in commands)):  # keine neuen Kommandos oder ungültig
             return
         self.cachedCommands = commands
-        print(commands)
+        #print(commands)
 
     def rotateTraj(self, degree):  # erstellt rotierten Vektor um z Achse um Grad degree
         self.currentTraj = []  # Aktuelle Trajektorie leeren
