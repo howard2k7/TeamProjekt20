@@ -195,33 +195,32 @@ class Robot:
             # Punkteliste holen
 
             # Überprüfe ob die berechnete Zeit für eine Bewegung abgelaufen ist
-            if self.testMode or (self.legs[0].getTimefinished() >= time.time()):
-                legATraj = self.currentTraj[self.trajAIndex + 1]
-                legBTraj = self.currentTraj[self.trajBIndex + 1]
-                # print(legATraj)
-                # print(legBTraj)
+            legATraj = self.currentTraj[self.trajAIndex + 1]
+            legBTraj = self.currentTraj[self.trajBIndex + 1]
+            # print(legATraj)
+            # print(legBTraj)
 
-                # Punkte zur Ausführung an die
-                # Beinobjekte übergeben
-                points = []  # tmp Liste für Hexaplotter
-                for i in range(len(self.legs)):
-                    if (i % 2) != 0:
-                        # Überprüft ob nächster Punkt = Haltepunkt, falls ja dann überspringe Punkt
-                        if self.moveToPos(i, legATraj) != (self.moveToPos(0, self.currentTraj[self.trajAIndex])):
-                            self.legs[i].setFootPosPoints(self.moveToPos(i, legATraj), self.velocity)
-                            points.append(self.moveToPos(i, legATraj))
-                    else:
-                        if self.moveToPos(i, legBTraj) != (self.moveToPos(0, self.currentTraj[self.trajBIndex])):
-                            self.legs[i].setFootPosPoints(self.moveToPos(i, legBTraj), self.velocity)
-                            points.append(self.moveToPos(i, legBTraj))
-                if self.testMode:
-                    self.hs.send_points(points)
-                # Stemmtrajektorienpunkt an die Orte
-                # der drei stemmenden Beine verschieben
-                # Schwingtrajektorienpunkt an die Orte
-                # der drei schwingenden Beine verschieben
-                self.trajAIndex += 1
-                self.trajBIndex += 1
+            # Punkte zur Ausführung an die
+            # Beinobjekte übergeben
+            points = []  # tmp Liste für Hexaplotter
+            for i in range(len(self.legs)):
+                if (i % 2) != 0:
+                    # Überprüft ob nächster Punkt = Haltepunkt, falls ja dann überspringe Punkt
+                    if self.moveToPos(i, legATraj) != (self.moveToPos(0, self.currentTraj[self.trajAIndex])):
+                        self.legs[i].setFootPosPoints(self.moveToPos(i, legATraj), self.velocity)
+                        points.append(self.moveToPos(i, legATraj))
+                else:
+                    if self.moveToPos(i, legBTraj) != (self.moveToPos(0, self.currentTraj[self.trajBIndex])):
+                        self.legs[i].setFootPosPoints(self.moveToPos(i, legBTraj), self.velocity)
+                        points.append(self.moveToPos(i, legBTraj))
+            if self.testMode:
+                self.hs.send_points(points)
+            # Stemmtrajektorienpunkt an die Orte
+            # der drei stemmenden Beine verschieben
+            # Schwingtrajektorienpunkt an die Orte
+            # der drei schwingenden Beine verschieben
+            self.trajAIndex += 1
+            self.trajBIndex += 1
 
             tEnd = time.perf_counter()
             periodLength = tEnd - tStart
