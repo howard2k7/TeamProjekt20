@@ -248,7 +248,7 @@ class Robot:
                 any(isinstance(x, str) for x in commands)):  # keine neuen Kommandos oder ungültig
             return
         self.cachedCommands = commands
-        #print(commands)
+        print(commands)
 
     def rotateTraj(self, degree):  # erstellt rotierten Vektor um z Achse um Grad degree
         self.currentTraj = []  # Aktuelle Trajektorie leeren
