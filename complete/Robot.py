@@ -195,12 +195,7 @@ class Robot:
             # Punkteliste holen
 
             # Überprüfe ob die berechnete Zeit für eine Bewegung abgelaufen ist
-            if self.testMode or (self.legs[0].getTimefinished() <= time.time() and
-                                 self.legs[1].getTimefinished() <= time.time() and
-                                 self.legs[2].getTimefinished() <= time.time() and
-                                 self.legs[3].getTimefinished() <= time.time() and
-                                 self.legs[4].getTimefinished() <= time.time() and
-                                 self.legs[5].getTimefinished() <= time.time()):
+            if self.testMode or (self.legs[0].getTimefinished() <= time.time()):
                 legATraj = self.currentTraj[self.trajAIndex + 1]
                 legBTraj = self.currentTraj[self.trajBIndex + 1]
                 # print(legATraj)
