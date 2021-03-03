@@ -41,11 +41,11 @@ class Robot:
             else:
                 self.host = Host()
             # sechs reale Beinobjekte mit entsprechenden Joint IDs erzeugen
-            self.legs = [Leg(1, 1, 3, 5, False, True, False), Leg(2, 2, 4, 6, False, False, True),
-                         Leg(3, 8, 10, 12, False, True, False), Leg(4, 14, 16, 18, False, True, False),
-                         Leg(5, 13, 15, 17, False, False, True), Leg(6, 7, 9, 11, False, False, True)]
+            #self.legs = [Leg(1, 1, 3, 5, False, True, False), Leg(2, 2, 4, 6, False, False, True),
+                         #Leg(3, 8, 10, 12, False, True, False), Leg(4, 14, 16, 18, False, True, False),
+                         #Leg(5, 13, 15, 17, False, False, True), Leg(6, 7, 9, 11, False, False, True)]
 
-            # self.legs = [Leg(1, 3, 14, 15, False, True, False)]
+            self.legs = [Leg(1, 3, 14, 15, False, True, False)]
 
         #  Wähle Startpunkte für jedes Bein
         self.legStartPositions = [[x, -y, -z, 1], [x, y, -z, 1], [0, x + 0.02, -z, 1],
@@ -175,12 +175,12 @@ class Robot:
             # Punkteliste holen
 
             # Überprüfe ob die berechnete Zeit für eine Bewegung abgelaufen ist
-            if self.testMode or (self.legs[0].getTimefinished() <= time.time() and
-                                 self.legs[1].getTimefinished() <= time.time() and
-                                 self.legs[2].getTimefinished() <= time.time() and
-                                 self.legs[3].getTimefinished() <= time.time() and
-                                 self.legs[4].getTimefinished() <= time.time() and
-                                 self.legs[5].getTimefinished() <= time.time()):
+            if self.testMode or self.legs[0].getTimefinished() <= time.time(): #and
+                                 #self.legs[1].getTimefinished() <= time.time() and
+                                 #self.legs[2].getTimefinished() <= time.time() and
+                                 #self.legs[3].getTimefinished() <= time.time() and
+                                 #self.legs[4].getTimefinished() <= time.time() and
+                                 #self.legs[5].getTimefinished() <= time.time()):
                 legATraj = self.currentTraj[self.trajAIndex + 1]
                 legBTraj = self.currentTraj[self.trajBIndex + 1]
                 # print(legATraj)
