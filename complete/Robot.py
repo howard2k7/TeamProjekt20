@@ -32,7 +32,7 @@ class Robot:
             self.legs = [LegDummy(1, 1, 3, 5), LegDummy(2, 2, 4, 6),
                          LegDummy(3, 8, 10, 12), LegDummy(4, 14, 16, 18),
                          LegDummy(5, 13, 15, 17), LegDummy(6, 7, 9, 11)]
-            # self.legs = [LegDummy(1, 1, 3, 5)]
+            self.legs = [LegDummy(1, 1, 3, 5)]
         else:
             # Kommunikationsobjekt erzeugen
             if len(sys.argv) > 1:  # or ==3
@@ -41,11 +41,11 @@ class Robot:
             else:
                 self.host = Host()
             # sechs reale Beinobjekte mit entsprechenden Joint IDs erzeugen
-            self.legs = [Leg(1, 1, 3, 5, False, True, False), Leg(2, 2, 4, 6, False, False, True),
-                         Leg(3, 8, 10, 12, False, True, False), Leg(4, 14, 16, 18, False, True, False),
-                         Leg(5, 13, 15, 17, False, False, True), Leg(6, 7, 9, 11, False, False, True)]
+           # self.legs = [Leg(1, 1, 3, 5, False, True, False), Leg(2, 2, 4, 6, False, False, True),
+            #             Leg(3, 8, 10, 12, False, True, False), Leg(4, 14, 16, 18, False, True, False),
+              #           Leg(5, 13, 15, 17, False, False, True), Leg(6, 7, 9, 11, False, False, True)]
 
-            # self.legs = [Leg(1, 3, 14, 15, False, True, False)]
+            self.legs = [Leg(1, 3, 14, 15, False, True, False)]
 
         #  Wähle Startpunkte für jedes Bein
         self.legStartPositions = [[x, -y, -z, 1], [x, y, -z, 1], [0, x + 0.02, -z, 1],
