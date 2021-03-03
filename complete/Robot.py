@@ -93,7 +93,7 @@ class Robot:
             if (i % 2) == 0:  # Schwingbeine um z verschieben
                 tmp[2] += Robot.moveZMax
             newPos.append(tmp)
-            self.legs[i].setFootPosPoints(tmp, 0)
+            self.legs[i].setFootPosPoints(tmp)
         if self.testMode:  # Startposition an Hexaplotter senden
             self.hs.send_points(newPos)
 
@@ -128,27 +128,7 @@ class Robot:
                 for j in range(self.stopPointDuration):
                     trajectory.append([x, 0.0, 0.0, 1])
             trajectory.append([x, 0.0, 0.0, 1])
-        print(trajectory)
-        """else:
-            zPoints = 5
-            xPoints = 6
-            self.middleXZIndex = 9
-            z = []
-            x = []
-            for i in range(zPoints):
-                z.append(Robot.moveXMax / 2 - i * (Robot.moveXMax / (zPoints - 1)))
-            for i in range(xPoints):
-                x.append(Robot.moveXMax / 2 - i * (Robot.moveXMax / (xPoints - 1)))
-
-            for i in z:
-                trajectory.append([-Robot.moveXMax / 2, 0, i, 1])
-            for i in x:
-                trajectory.append([i, 0, Robot.moveZMax, 1])
-            for i in reversed(z):
-                trajectory.append([Robot.moveXMax / 2, 0, i, 1])
-            for i in reversed(x):
-                trajectory.append([i, 0, 0, 1])
-            print(trajectory)"""
+        # print(trajectory)
 
         return trajectory
 
