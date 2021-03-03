@@ -7,6 +7,8 @@ import sys
 from HexaplotSender import HexaplotSender
 from LegDummy import LegDummy
 from Robhost import Host
+
+
 from LegFF import Leg
 
 
@@ -16,7 +18,6 @@ class Robot:
     moveXMax = 0.042  # max. Durchmesser vom Arbeitsbereich nach X
 
     def __init__(self, testMode=False):
-
         self.testMode = testMode  # Flag für Testmodus (Hexaplotter, DummyLegs)
         z = 0.15
         x = 0.169
@@ -92,7 +93,7 @@ class Robot:
             if (i % 2) == 0:  # Schwingbeine um z verschieben
                 tmp[2] += Robot.moveZMax
             newPos.append(tmp)
-            self.legs[i].setFootPosPoints(tmp)
+            self.legs[i].setFootPosPoints(tmp, 0)
         if self.testMode:  # Startposition an Hexaplotter senden
             self.hs.send_points(newPos)
 
@@ -102,13 +103,24 @@ class Robot:
         xzPoints = int(self.coordPoints / 2) - 1
         self.middleXZIndex = math.ceil(xzPoints / 2)
         # Erstelle Trajektorien für die Schwingphase
-        for i in range(1, xzPoints + 1):
-            x = -Robot.moveXMax / 2 + i * (Robot.moveXMax / (xzPoints + 1))
-            z = -(newZ * x ** 2 * 4) / (Robot.moveXMax ** 2) + newZ
-            if len(self.cachedCommands) != 0:
-                if self.cachedCommands[2] == 1:
-                    z = math.sqrt(Robot.moveXMax ** 2 - x ** 2) + Robot.moveZMax - Robot.moveXMax
-            trajectory.append([x, 0.0, z, 1])
+        if len(self.cachedCommands) == 0 or \
+                self.cachedCommands[2] != 1:
+            for i in range(1, xzPoints + 1):
+                x = -Robot.moveXMax / 2 + i * (Robot.moveXMax / (xzPoints + 1))
+                z = -(newZ * x ** 2 * 4) / (Robot.moveXMax ** 2) + newZ
+                trajectory.append([x, 0.0, z, 1])
+        else:  # Erstelle Trajektorie für drittes Hindernis
+            for i in range(1, int(xzPoints / 3) + 1):
+                z = i * ((Robot.moveZMax - (Robot.moveXMax / 2)) / int(xzPoints / 3))
+                trajectory.append([-Robot.moveXMax / 2, 0, z, 1])
+            for i in range(1, int(xzPoints / 3) + 1):
+                x = -Robot.moveXMax / 2 + i * (Robot.moveXMax / ((xzPoints / 3) + 1))
+                z = math.sqrt((Robot.moveXMax / 2) ** 2 - x ** 2) + Robot.moveZMax - Robot.moveXMax / 2
+                trajectory.append([x, 0, z, 1])
+            for i in range(0, int(xzPoints / 3)):
+                z = Robot.moveZMax - (Robot.moveXMax / 2) - i * ((
+                        Robot.moveZMax - (Robot.moveXMax / 2)) / (xzPoints / 3))
+                trajectory.append([Robot.moveXMax / 2, 0, z, 1])
         # Erstelle Trajektorien für die Stemmphase
         for i in range(0, xPoints):
             x = Robot.moveXMax / 2 - i * (Robot.moveXMax / (xPoints - 1))
@@ -116,7 +128,7 @@ class Robot:
                 for j in range(self.stopPointDuration):
                     trajectory.append([x, 0.0, 0.0, 1])
             trajectory.append([x, 0.0, 0.0, 1])
-        #  print(trajectory)
+        print(trajectory)
         """else:
             zPoints = 5
             xPoints = 6
@@ -183,13 +195,12 @@ class Robot:
             # Punkteliste holen
 
             # Überprüfe ob die berechnete Zeit für eine Bewegung abgelaufen ist
-            if self.testMode or \
-                    (self.legs[0].getTimefinished() <= time.time() and
-                     self.legs[1].getTimefinished() <= time.time() and
-                     self.legs[2].getTimefinished() <= time.time() and
-                     self.legs[3].getTimefinished() <= time.time() and
-                     self.legs[4].getTimefinished() <= time.time() and
-                     self.legs[5].getTimefinished() <= time.time()):
+            if self.testMode or (self.legs[0].getTimefinished() <= time.time() and
+                                 self.legs[1].getTimefinished() <= time.time() and
+                                 self.legs[2].getTimefinished() <= time.time() and
+                                 self.legs[3].getTimefinished() <= time.time() and
+                                 self.legs[4].getTimefinished() <= time.time() and
+                                 self.legs[5].getTimefinished() <= time.time()):
                 legATraj = self.currentTraj[self.trajAIndex + 1]
                 legBTraj = self.currentTraj[self.trajBIndex + 1]
                 # print(legATraj)
@@ -197,19 +208,19 @@ class Robot:
 
                 # Punkte zur Ausführung an die
                 # Beinobjekte übergeben
-                # print(allCurrentPositions)
+                points = []  # tmp Liste für Hexaplotter
                 for i in range(len(self.legs)):
                     if (i % 2) != 0:
-                        if self.moveToPos(i, legATraj) != (self.moveToPos(0, self.currentTraj[self.trajAIndex])):  # Überprüft ob nächster Punkt = Haltepunkt, falls ja dann überspringe den Punkt
+                        # Überprüft ob nächster Punkt = Haltepunkt, falls ja dann überspringe Punkt
+                        if self.moveToPos(i, legATraj) != (self.moveToPos(0, self.currentTraj[self.trajAIndex])):
                             self.legs[i].setFootPosPoints(self.moveToPos(i, legATraj), self.velocity)
+                            points.append(self.moveToPos(i, legATraj))
                     else:
                         if self.moveToPos(i, legBTraj) != (self.moveToPos(0, self.currentTraj[self.trajBIndex])):
                             self.legs[i].setFootPosPoints(self.moveToPos(i, legBTraj), self.velocity)
-
-                # print(allCurrentPositions[0] == (self.moveToPos(0, self.currentTraj[self.trajBIndex])))
-                # print("Move to: " + str(allCurrentPositions[0]))
-                # print("Current Trajectory Point: " + str((self.moveToPos(0, self.currentTraj[self.trajBIndex]))))
-
+                            points.append(self.moveToPos(i, legBTraj))
+                if self.testMode:
+                    self.hs.send_points(points)
                 # Stemmtrajektorienpunkt an die Orte
                 # der drei stemmenden Beine verschieben
                 # Schwingtrajektorienpunkt an die Orte
@@ -242,7 +253,7 @@ class Robot:
                 any(isinstance(x, str) for x in commands)):  # keine neuen Kommandos oder ungültig
             return
         self.cachedCommands = commands
-        print(commands)
+        #print(commands)
 
     def rotateTraj(self, degree):  # erstellt rotierten Vektor um z Achse um Grad degree
         self.currentTraj = []  # Aktuelle Trajektorie leeren

@@ -9,5 +9,5 @@ class LegDummy:
         self.id2 = id2
         self.id3 = id3
 
-    def setFootPosPoints(self, pos):
+    def setFootPosPoints(self, pos, vel):
         ...
